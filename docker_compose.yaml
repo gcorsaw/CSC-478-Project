@@ -19,7 +19,11 @@ services:
       POSTGRES_PASSWORD: change-me
       POSTGRES_DB: app
     ports:
+<<<<<<< HEAD
       - "5450:5432"
+=======
+      - "5433:5432"
+>>>>>>> 68f85c6 (A commit of consisting of tables, a docker compose file, and testing information.)
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
