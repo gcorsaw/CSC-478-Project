@@ -80,6 +80,55 @@ Exit `psql`:
 \q
 ```
 
+## Git and GitHub Commands
+
+### Check status
+
+```bash
+git status
+```
+
+### Stage changes
+
+```bash
+git add .
+```
+
+### Commit changes
+
+```bash
+git commit -m "Describe your changes here"
+```
+
+### Push to GitHub
+
+```bash
+git push
+```
+
+### Push a new branch to GitHub
+
+```bash
+git push -u origin <branch-name>
+```
+
+### Commit and push in one flow
+
+```bash
+git add .
+git commit -m "Describe your changes here"
+git push
+```
+
+### If you are using VS Code Git UI
+
+1. Open the Source Control panel in VS Code.
+2. Review the changed files.
+3. Click the plus button to stage files, or use the command palette for staging.
+4. Enter a commit message.
+5. Click Commit.
+6. Click the Sync Changes button or run `git push` from the terminal.
+
 ## Stop PostgreSQL
 
 Stop the services without deleting database data:
