@@ -55,6 +55,7 @@ Automatically inspect the active container:
 ```bash
 docker exec -it my_postgres_db psql -U myuser -d mydatabase
 ```
+* Note: the myuser is going to be postgres (refer to the docker-compose.yaml file for that information)
 
 Inside `psql`, list tables:
 

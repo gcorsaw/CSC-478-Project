@@ -207,7 +207,7 @@ insert into table_assignment (table_id, waiter_id)
     join worker w on w.worker_id = ws.worker_id
     where dt.table_number = 3 and w.username = 'jdoe';
  
-date dining_table set table_status = 'occupied' where table_number = 2;
+update dining_table set table_status = 'occupied' where table_number = 2;
  
 insert into customer_order (table_id, waiter_id)
     select dt.table_id, ws.waiter_id
