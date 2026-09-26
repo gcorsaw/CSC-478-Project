@@ -157,8 +157,7 @@ insert into menu_items (item_name, category, price) values
     ('Sparkling Water',   'drink',   2.50);
  
 -- Mark table 1 occupied since we're about to seat an order there
-update dining_table set table_status = 'occupied' where table_number = 1;
- 
+update dining_table set table_status = 'occupied' where table_number = 2; 
 -- An order at table 1, taken by Jane (jdoe)
 insert into customer_order (table_id, waiter_id)
     select dt.table_id, ws.waiter_id
@@ -187,3 +186,116 @@ insert into payment (order_id, amount, tip)
  
 update customer_order set order_status = 'closed' where order_id = 1;
 update dining_table set table_status = 'open' where table_number = 1;
+
+-- New Test cases 
+insert into admin_station(worker_id) select worker_id from worker where username = 'rpatel';
+
+insert into worker(first_name, last_name, username, password_hash, is_active) values
+('Former', 'Employee', 'fformer','hash_placeholder_6', false);
+
+insert into dining_table(table_number, seats) VALUES
+(5, 1),
+(6, 10);
+
+insert into menu_items (item_name, category, price, is_available) values
+    ('Kids Water Cup', 'drink', 0.00, true),
+    ('Seasonal Truffle Special', 'main', 45.00, false);
+ 
+insert into table_assignment (table_id, waiter_id)
+    select dt.table_id, ws.waiter_id
+    from dining_table dt, waiter_station ws
+    join worker w on w.worker_id = ws.worker_id
+    where dt.table_number = 3 and w.username = 'jdoe';
+ 
+date dining_table set table_status = 'occupied' where table_number = 2;
+ 
+insert into customer_order (table_id, waiter_id)
+    select dt.table_id, ws.waiter_id
+    from dining_table dt, waiter_station ws
+    join worker w on w.worker_id = ws.worker_id
+    where dt.table_number = 2 and w.username = 'jdoe';
+ 
+insert into order_item (order_id, item_id, quantity, notes, kitchen_status, priority)
+    select co.order_id, m.item_id, 1, 'no croutons', 'done', 0
+    from customer_order co, menu_items m
+    where co.table_id = (select table_id from dining_table where table_number = 2)
+      and co.order_status = 'open'
+      and m.item_name = 'Caesar Salad';
+ 
+insert into order_item (order_id, item_id, quantity, notes, kitchen_status, priority)
+    select co.order_id, m.item_id, 1, 'allergy: send out first', 'in_progress', 5
+    from customer_order co, menu_items m
+    where co.table_id = (select table_id from dining_table where table_number = 2)
+      and co.order_status = 'open'
+      and m.item_name = 'Grilled Salmon';
+ 
+insert into order_item (order_id, item_id, quantity, kitchen_status, priority)
+    select co.order_id, m.item_id, 4, 'standing_by', 0
+    from customer_order co, menu_items m
+    where co.table_id = (select table_id from dining_table where table_number = 2)
+      and co.order_status = 'open'
+      and m.item_name = 'Sparkling Water';
+ 
+insert into customer_order (table_id, waiter_id)
+    select dt.table_id, ws.waiter_id
+    from dining_table dt, waiter_station ws
+    join worker w on w.worker_id = ws.worker_id
+    where dt.table_number = 4 and w.username = 'slee';
+ 
+insert into order_item (order_id, item_id, quantity, kitchen_status)
+    select co.order_id, m.item_id, 2, 'done'
+    from customer_order co, menu_items m
+    where co.table_id = (select table_id from dining_table where table_number = 4)
+      and co.order_status = 'open'
+      and m.item_name = 'Margherita Pizza';
+ 
+insert into order_item (order_id, item_id, quantity, kitchen_status)
+    select co.order_id, m.item_id, 2, 'done'
+    from customer_order co, menu_items m
+    where co.table_id = (select table_id from dining_table where table_number = 4)
+      and co.order_status = 'open'
+      and m.item_name = 'Tiramisu';
+ 
+insert into payment (order_id, amount, tip)
+    select order_id, 15.50, 5.00
+    from customer_order
+    where table_id = (select table_id from dining_table where table_number = 4)
+      and order_status = 'open';
+ 
+insert into payment (order_id, amount, tip)
+    select order_id, 15.50, 5.00
+    from customer_order
+    where table_id = (select table_id from dining_table where table_number = 4)
+      and order_status = 'open';
+ 
+update customer_order set order_status = 'closed'
+    where table_id = (select table_id from dining_table where table_number = 4)
+      and order_status = 'open';
+ 
+update dining_table set table_status = 'open' where table_number = 4;
+ 
+-- Verification queries -- run these by hand afterward to sanity-check the data.
+-- Each should return the noted result.
+ 
+-- Expect 1 row: rpatel now holds both owner and admin roles
+-- select w.username from worker w
+--     join owner_station os on os.worker_id = w.worker_id
+--     join admin_station ad on ad.worker_id = w.worker_id
+--     where w.username = 'rpatel';
+ 
+-- Expect table 2's order to show one item per kitchen_status
+-- select kitchen_status, count(*) from order_item oi
+--     join customer_order co on co.order_id = oi.order_id
+--     join dining_table dt on dt.table_id = co.table_id
+--     where dt.table_number = 2 and co.order_status = 'open'
+--     group by kitchen_status;
+ 
+-- Expect 2 rows summing to 31.00 paid / 10.00 tip for table 4's closed order
+-- select order_id, sum(amount) as total_paid, sum(tip) as total_tip
+--     from payment
+--     where order_id = (
+--         select order_id from customer_order
+--         where table_id = (select table_id from dining_table where table_number = 4)
+--         order by order_id desc limit 1
+--     )
+--     group by order_id;
