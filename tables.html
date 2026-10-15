@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tables</title>
+        <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
+    </head>
+    <body>
+        <h1>Restaurant Tables</h1>
+
+        <h2>Add Table</h2>
+
+        <form>
+            <label for="tableNumber">Table Number:</label>
+            <input type="text" id="tableNumber" name="tableNumber" required>
+            <label for="capacity">Capacity:</label>
+            <input type="number" id="capacity" name="capacity" required>
+            <button type="submit">Add Table</button>  
+        </form>
+
+</html>

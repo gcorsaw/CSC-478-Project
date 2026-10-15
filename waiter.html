@@ -1,0 +1,466 @@
+<!DOCTYPE html> 
+<html lang ="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, intial-scale=1.0">
+        <meta name="theme-color" content="#173d32">
+        <title>Waiter Station | Green Olives</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
+        <style>
+            .waiter-page {
+                --ink: #18352d;
+                --muted: #64746d;
+                --green: #1e624b;
+                --green-dark: #174b3a;
+                --line: #e2e9e4;
+                --surface: #fff;
+                min-height: 100vh;
+                margin: 0;
+                padding: 0;
+                background: #f3f6f3;
+                color: var(--ink);
+                font-family: Arial, sans-serif;
+                text-align: left;
+            }
+
+            .waiter-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                padding: 18px clamp(18px, 5vw, 64px);
+                background: #173d32;
+                color: #fff;
+            }
+
+            .waiter-brand {
+                margin: 0;
+                font-size: 1.2rem;
+                font-weight: 700;
+                letter-spacing: .02em;
+            }
+
+            .waiter-role {
+                padding: 8px 12px;
+                border: 1px solid rgba(255, 255, 255, .35);
+                border-radius: 999px;
+                font-size: .88rem;
+            }
+
+            .waiter-main {
+                width: min(1120px, calc(100% - 32px));
+                margin: 0 auto;
+                padding: 36px 0 56px;
+            }
+
+            .waiter-intro {
+                margin-bottom: 24px;
+            }
+
+            .waiter-intro h1 {
+                margin: 0 0 8px;
+                font-size: clamp(1.8rem, 4vw, 2.5rem);
+            }
+
+            .waiter-intro p,
+            .waiter-section-copy {
+                margin: 0;
+                color: var(--muted);
+                line-height: 1.5;
+            }
+
+            .waiter-stats {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .waiter-stat 
+            .waiter-panel {
+                border: 1px solid var(--line);
+                border-radius: 16px;
+                background: var(--surface);
+                box-shadow: 0 4px 18px rgba(24, 53, 45, .04);
+            }
+            
+            .waiter-stat {
+                padding: 16px 20px;
+            }
+
+            .waiter-stat span {
+                display: block;
+                color: var(--muted);
+                font-size: .9rem;
+            }
+
+             .waiter-stat strong {
+            display: block;
+            margin-top: 4px;
+            font-size: 1.8rem;
+        }
+
+        .waiter-panel {
+            margin-top: 18px;
+            padding: clamp(18px, 3vw, 28px);
+        }
+
+        .waiter-panel-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .waiter-panel h2 {
+            margin: 0 0 6px;
+            font-size: 1.3rem;
+        }
+
+        .waiter-form {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) minmax(150px, .6fr) auto;
+            align-items: end;
+            gap: 14px;
+        }
+
+        .waiter-field label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: .93rem;
+            font-weight: 700;
+        }
+
+        .waiter-field input {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 52px;
+            padding: 12px 14px;
+            border: 1px solid #cbd7ce;
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            font: inherit;
+        }
+
+        .waiter-field input:focus-visible,
+        .waiter-button:focus-visible {
+            outline: 3px solid #8cc6a4;
+            outline-offset: 2px;
+        }
+
+        .waiter-button {
+            display: inline-flex;
+            min-height: 48px;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--green);
+            color: #fff;
+            font: inherit;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .waiter-button:hover {
+            background: var(--green-dark);
+        }
+
+        .waiter-button-secondary {
+            border: 1px solid #cbd7ce;
+            background: #fff;
+            color: var(--ink);
+        }
+
+        .waiter-button-secondary:hover {
+            background: #f1f5f2;
+        }
+
+        .waiter-button-release {
+            border: 1px solid #e6c9c2;
+            background: #fff;
+            color: #8a3828;
+        }
+
+        .waiter-button-release:hover {
+            background: #fff4f1;
+        }
+
+        .waiter-table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+        }
+
+        .waiter-table-card {
+            display: flex;
+            min-height: 170px;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .waiter-table-card.is-occupied {
+            border-color: #efd1c9;
+            background: #fffaf8;
+        }
+
+        .waiter-table-topline {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .waiter-table-name {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .waiter-status {
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: #e8f4eb;
+            color: #28613e;
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .is-occupied .waiter-status {
+            background: #f9e8e3;
+            color: #8a3828;
+        }
+
+        .waiter-table-detail {
+            margin: 12px 0 16px;
+            color: var(--muted);
+            font-size: .92rem;
+            line-height: 1.45;
+        }
+
+        .waiter-table-card .waiter-button {
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .waiter-feedback {
+            min-height: 24px;
+            margin: 14px 0 0;
+            color: var(--green-dark);
+            font-weight: 700;
+        }
+
+        .waiter-feedback.is-error {
+            color: #a52e20;
+        }
+
+        .waiter-empty {
+            grid-column: 1 / -1;
+            padding: 24px;
+            border: 1px dashed #cbd7ce;
+            border-radius: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .waiter-note {
+            margin: 18px 4px 0;
+            color: var(--muted);
+            font-size: .84rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 680px) {
+            .waiter-header {
+                padding: 16px;
+            }
+
+            .waiter-main {
+                width: min(100% - 24px, 560px);
+                padding-top: 26px;
+            }
+
+            .waiter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .waiter-form .waiter-button {
+                width: 100%;
+            }
+        }
+        </style>
+    </head>
+    <body class="waiter-page">
+        <header class="waiter-header">
+            <p class="waiter-brand">Green Olives <span aria-hidden="true">.</span> Waiter Station</p>
+            <span class="waiter-role">Waiter</span>
+        </header>
+
+    <main class="waiter-main">
+        <section class="waiter-intro" aria-labelledby="waiter-title">
+            <h1 id="waiter-title">Welcome to the Waiter Station. Ready to tend to your guests></h1>
+            <p>Check your assigned tables and start serving your guests.</p>
+        </section>
+
+        <section class="waiter-stats" aria-label="Guests">
+            <div class="waiter-stat waiter-panel">
+                <span>Guests Served</span>
+                <strong id ="open-count" aria-live="polite">0</strong>
+            </div>
+            <div class="waiter-stat">
+                <span>Guests Waiting</span>
+                <strong id="closed-count" aria-live="polite">0</strong>
+            </div>
+        </section>
+
+        <section class="waiter-panel" aria-labelledby="waiter-heading">
+            <div class="waiter-panel-heading">
+                <div>
+                    <h2 id="waiter-heading">Your Tables</h2>
+                    <p class="waiter-section-copy">Check your assigned tables and start serving your guests.</p>
+                </div>
+            </div>
+            <form class="waiter-form" id="guest-form">
+                <div class="waiter-field">
+                    <label for="guest-name">Guest Name</label>
+                    <input id="guest-name" name="guestName" type="text" autocomplete="name" maxlength="60"
+                     placeholder="Name for the table" required>
+                </div>
+                <div class="waiter-field">
+                    <label for="party-size">Party Size</label>
+                    <input id="party-size" name="partySize" type="number" min="1" max="20" placeholder="Number of guests" required>
+                </div>
+                <button class="waiter-button" type="submit">Add Guest</button>
+            </form>
+            <p class="waiter-feedback" id="waiter-feedback" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="waiter-panel" aria-labelledby="tables-heading">
+            <div class="waiter-panel-heading">
+                <div>
+                <h2 id="tables-heading">Table Status</h2>
+                <p class="waiter-section-copy" id="table instructions">Check your assigned tables and their current status.</p>
+            </div>
+            <button class="waiter-button waiter-button-secondary" id="show-all-tables" type="button">Show all seated guests</button>
+            </div>
+            <div class="waiter-table-grid" id="table-grid" aria-live="polite">
+            </div>
+        </section>
+
+        <p class="waiter-note">Note: Guests status is saved in this browser on this device. It is not shared with other host stations.</p>
+    </main>
+
+    <script>
+        (() => {
+            const storageKey = "green-olives-waiter-tables";
+            const defaultTables = [
+                { number: "Table 1", capacity: 2, status: "occupied" },
+                { number: "Table 2", capacity: 4, status: "occupied" },
+                { number: "Table 3", capacity: 3, status: "occupied" },
+                { number: "Table 4", capacity: 5, status: "occupied" },
+                { number: "Table 5", capacity: 2, status: "occupied" },
+                { number: "Table 6", capacity: 4, status: "occupied" },
+                { number: "Table 7", capacity: 3, status: "occupied" },
+                { number: "Table 8", capacity: 5, status: "occupied" },
+            ];
+            const tableGrid = document.getElementById("table-grid");
+            const guestForm = document.getElementById("guest-form");
+            const guestName = document.getElementById("guest-name");
+            const partySizeInput = document.getElementById("party-size");
+            const guestFeedback = document.getElementById("waiter-feedback");
+            const tableInstructions = document.getElementById("table instructions");
+            let tables = defaultTables.map(table => ({ ...table, guestName: "", partySize: 0 }));
+            let currentParty = null;
+
+            function showFeedback(message, isError) {
+                guestFeedback.textContent = message;
+                guestFeedback.classList.toggle("is-error", isError);
+            }
+
+            function saveTables() {
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(tables));
+                    return true;
+                } catch (error) {
+                    showFeedback("Error saving table data.", true);
+                    return false;
+                }
+            }
+
+            function restoreTables() {
+                let savedTables;
+                try {
+                    savedTables = JSON.parse(localStorage.getItem(storageKey));
+                } catch (error) {
+                    showFeedback("Error restoring table data.", true);
+                    return;
+                }
+                if (savedTables === null) {
+                    return;
+                }
+
+                try {
+                    const parsedTables = JSON.parse(savedTables);
+                    const isValid = Array.isArray(parsedTables)
+                        && parsedTables.length === defaultTables.length
+                        && parsedTables.every((table) =>
+                            Number.isInteger(table.number)
+                            && Number.isInteger(table.capacity)
+                            && typeof table.guest === "string"
+                            && Number.isInteger(table.partySize)
+                        );
+
+                    if (!isValid) {
+                        throw new Error("Saved table data is invalid.");
+                    }
+                    tables = parsedTables;
+
+                     } catch (error) {
+                    showFeedback("Saved table status could not be read", true);
+                }
+            }
+
+            function updateCounts() {
+                const openTables = tables.filter((table) => !table.guest).length;
+                document.getElementById("open-count").textContent = openTables;
+                document.getElementById("occupied-count").textContent = tables.length - openTables;
+            }
+
+            function makeEmptyMessage(message) {
+                const empty = document.createElement("p");
+                empty.className = "waiter-empty";
+                empty.textContent = message;
+                tableGrid.append(empty);
+            }
+             function renderTables(availableOnly) {
+                tableGrid.replaceChildren();
+                const visibleTables = tables.filter((table) =>
+                    !availableOnly || (!table.guest && table.capacity >= currentParty.partySize)
+                );
+
+                if (visibleTables.length === 0) {
+                    makeEmptyMessage(availableOnly
+                        ? "No open tables fit this party right now. Please let the guests know and check back shortly."
+                        : "No tables to show.");
+                    return;
+                }
+
+
+
+
+                
+             }
+            
+        })();
+    </script>
+    </body>
+</html>

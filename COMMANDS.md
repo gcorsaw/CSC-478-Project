@@ -1,5 +1,30 @@
 # Restaurant Database Commands
 
+## Copy the project to your own directory
+
+This copies the complete restaurant database project, including hidden files,
+into a new folder in your home directory. It stops rather than merging with a
+destination folder that already exists:
+
+```bash
+test ! -e "$HOME/CSC_478-copy" || {
+  printf 'Destination already exists: %s\n' "$HOME/CSC_478-copy" >&2
+  exit 1
+}
+cp -a /home/grace/CSC_478 "$HOME/CSC_478-copy"
+```
+
+To choose a different destination, replace both occurrences of
+`$HOME/CSC_478-copy` with the directory you want. This is a full copy, including
+the Git repository metadata and the generated `out` folder if present.
+
+## Java source files ZIP
+
+The [restaurant-java-sources.zip](./restaurant-java-sources.zip) archive in
+this directory contains the Java source files from this project and the
+provided `restaurantapptest.zip`. It includes `.java` source files only, not
+compiled `.class` files.
+
 ## Start PostgreSQL
 
 Start the database service in the background:

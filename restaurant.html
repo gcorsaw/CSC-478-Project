@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset = "UTF-8">
+        <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+        <title>Green Olives Kiosk</title>
+        <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
+    </head>
+    <body class="landing-page">
+        <header class="site-header">
+            <div class="site-header-inner">
+                <p class="site-brand">Green Olives</p>
+                <span class="site-tagline">Restaurant operations</span>
+            </div>
+        </header>
+        <main class="landing-main">
+            <section class="landing-intro" aria-labelledby="page-title">
+                <p class="eyebrow">Operations portal</p>
+                <h1 id="page-title">Restaurant Management</h1>
+                <p>Choose a service to place a guest order or access the tools for your team.</p>
+            </section>
+            <div class="portal-grid">
+                <section class="portal-card customer-card" aria-labelledby="customer-title">
+                    <h2 id="customer-title">Customer ordering</h2>
+                    <p>Start a dine-in order from the customer kiosk.</p>
+                    <a class="navi-button start-button" th:href="@{/menu}">Start Dine-In Order</a>
+                </section>
+                <section class="portal-card" aria-labelledby="staff-title">
+                    <h2 id="staff-title">Staff access</h2>
+                    <p>Open the workspace that matches your role.</p>
+                    <nav class="staff-nav" aria-label="Staff interfaces">
+                        <a class="navi-button" th:href="@{/owner}">Owner</a>
+                        <a class="navi-button" th:href="@{/manager}">Manager</a>
+                        <a class="navi-button" th:href="@{/admin}">Admin / Maintenance</a>
+                        <a class="navi-button" th:href="@{/chef}">Chef</a>
+                        <a class="navi-button" th:href="@{/waiter}">Waiter</a>
+                        <a class="navi-button" th:href="@{/host}">Host</a>
+                    </nav>
+                </section>
+            </div>
+        </main>
+    </body>
+</html>

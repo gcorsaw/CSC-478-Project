@@ -1,0 +1,260 @@
+:root {
+    color-scheme: light;
+    --ink: #18352d;
+    --muted: #64746d;
+    --green: #1e624b;
+    --green-dark: #174b3a;
+    --line: #dfe7e1;
+    --surface: #fff;
+    --page: #f3f6f3;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--page);
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+    color: var(--ink);
+    line-height: 1.2;
+}
+
+.start-button,
+.navi-button {
+    display: inline-block;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #fff;
+    background-color: var(--green);
+    font: inherit;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.start-button {
+    margin-top: 24px;
+    padding: 16px 24px;
+    font-size: 1.05rem;
+}
+
+.navi-button {
+    padding: 12px 16px;
+}
+
+.start-button:hover,
+.navi-button:hover {
+    background-color: var(--green-dark);
+}
+
+.start-button:focus-visible,
+.navi-button:focus-visible {
+    outline: 3px solid #8bb9a5;
+    outline-offset: 3px;
+}
+
+.landing-page {
+    min-height: 100vh;
+}
+
+.site-header {
+    color: #fff;
+    background: #173d32;
+}
+
+.site-header-inner {
+    display: flex;
+    width: min(1120px, calc(100% - 40px));
+    min-height: 76px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 auto;
+}
+
+.site-brand {
+    margin: 0;
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.site-tagline {
+    color: #d7e5dd;
+    font-size: .92rem;
+}
+
+.landing-main,
+.management-main {
+    width: min(1040px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 48px 0 64px;
+}
+
+.landing-intro {
+    margin-bottom: 28px;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: var(--green);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.landing-intro h1,
+.management-main h1 {
+    margin: 0 0 10px;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+}
+
+.landing-intro p:last-child,
+.management-copy {
+    max-width: 660px;
+    margin: 0;
+    color: var(--muted);
+}
+
+.portal-grid {
+    display: grid;
+    grid-template-columns: minmax(240px, .8fr) minmax(0, 1.2fr);
+    gap: 20px;
+    align-items: stretch;
+}
+
+.portal-card,
+.management-card {
+    padding: clamp(20px, 3vw, 30px);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 8px 24px rgba(24, 53, 45, .05);
+}
+
+.portal-card h2,
+.management-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+}
+
+.portal-card p,
+.management-card p {
+    margin: 0 0 18px;
+    color: var(--muted);
+}
+
+.customer-card {
+    border-top: 4px solid var(--green);
+}
+
+.staff-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.staff-nav .navi-button {
+    color: var(--green-dark);
+    border-color: var(--line);
+    background: #f7faf8;
+    text-align: left;
+}
+
+.staff-nav .navi-button:hover {
+    color: #fff;
+    border-color: var(--green-dark);
+    background: var(--green-dark);
+}
+
+.management-header {
+    padding: 18px max(20px, calc((100% - 1040px) / 2));
+    color: #fff;
+    background: #173d32;
+    font-weight: 700;
+}
+
+.management-main {
+    max-width: 760px;
+}
+
+.management-main h1 {
+    margin-bottom: 24px;
+}
+
+.management-card form {
+    display: grid;
+    gap: 14px;
+}
+
+.management-card label {
+    display: grid;
+    gap: 6px;
+    font-weight: 700;
+}
+
+.management-card input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #cbd7ce;
+    border-radius: 8px;
+    color: var(--ink);
+    background: #fff;
+    font: inherit;
+}
+
+.management-card input:focus-visible {
+    outline: 3px solid #8bb9a5;
+    outline-offset: 2px;
+}
+
+.management-card button {
+    justify-self: start;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    background: var(--green);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.management-card button:hover {
+    background: var(--green-dark);
+}
+
+@media (max-width: 680px) {
+    .site-header-inner {
+        min-height: 66px;
+    }
+
+    .landing-main,
+    .management-main {
+        padding: 32px 0 44px;
+    }
+
+    .portal-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 420px) {
+    .staff-nav {
+        grid-template-columns: 1fr;
+    }
+}

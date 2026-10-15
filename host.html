@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173d32">
+    <title>Host Station | Green Olives</title>
+    <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
+    <style>
+        .host-page {
+            --ink: #18352d;
+            --muted: #64746d;
+            --green: #1e624b;
+            --green-dark: #174b3a;
+            --line: #e2e9e4;
+            --surface: #fff;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            background: #f3f6f3;
+            color: var(--ink);
+            font-family: Arial, sans-serif;
+            text-align: left;
+        }
+
+        .host-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px clamp(18px, 5vw, 64px);
+            background: #173d32;
+            color: #fff;
+        }
+
+        .host-brand {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: .02em;
+        }
+
+        .host-role {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, .35);
+            border-radius: 999px;
+            font-size: .88rem;
+        }
+
+        .host-main {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 36px 0 56px;
+        }
+
+        .host-intro {
+            margin-bottom: 24px;
+        }
+
+        .host-intro h1 {
+            margin: 0 0 8px;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+        }
+
+        .host-intro p,
+        .host-section-copy {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .host-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .host-stat,
+        .host-panel {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--surface);
+            box-shadow: 0 4px 18px rgba(24, 53, 45, .04);
+        }
+
+        .host-stat {
+            padding: 16px 20px;
+        }
+
+        .host-stat span {
+            display: block;
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        .host-stat strong {
+            display: block;
+            margin-top: 4px;
+            font-size: 1.8rem;
+        }
+
+        .host-panel {
+            margin-top: 18px;
+            padding: clamp(18px, 3vw, 28px);
+        }
+
+        .host-panel-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .host-panel h2 {
+            margin: 0 0 6px;
+            font-size: 1.3rem;
+        }
+
+        .host-form {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) minmax(150px, .6fr) auto;
+            align-items: end;
+            gap: 14px;
+        }
+
+        .host-field label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: .93rem;
+            font-weight: 700;
+        }
+
+        .host-field input {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 52px;
+            padding: 12px 14px;
+            border: 1px solid #cbd7ce;
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            font: inherit;
+        }
+
+        .host-field input:focus-visible,
+        .host-button:focus-visible {
+            outline: 3px solid #8cc6a4;
+            outline-offset: 2px;
+        }
+
+        .host-button {
+            display: inline-flex;
+            min-height: 48px;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--green);
+            color: #fff;
+            font: inherit;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .host-button:hover {
+            background: var(--green-dark);
+        }
+
+        .host-button-secondary {
+            border: 1px solid #cbd7ce;
+            background: #fff;
+            color: var(--ink);
+        }
+
+        .host-button-secondary:hover {
+            background: #f1f5f2;
+        }
+
+        .host-button-release {
+            border: 1px solid #e6c9c2;
+            background: #fff;
+            color: #8a3828;
+        }
+
+        .host-button-release:hover {
+            background: #fff4f1;
+        }
+
+        .host-table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+        }
+
+        .host-table-card {
+            display: flex;
+            min-height: 170px;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .host-table-card.is-occupied {
+            border-color: #efd1c9;
+            background: #fffaf8;
+        }
+
+        .host-table-topline {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .host-table-name {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .host-status {
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: #e8f4eb;
+            color: #28613e;
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .is-occupied .host-status {
+            background: #f9e8e3;
+            color: #8a3828;
+        }
+
+        .host-table-detail {
+            margin: 12px 0 16px;
+            color: var(--muted);
+            font-size: .92rem;
+            line-height: 1.45;
+        }
+
+        .host-table-card .host-button {
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .host-feedback {
+            min-height: 24px;
+            margin: 14px 0 0;
+            color: var(--green-dark);
+            font-weight: 700;
+        }
+
+        .host-feedback.is-error {
+            color: #a52e20;
+        }
+
+        .host-empty {
+            grid-column: 1 / -1;
+            padding: 24px;
+            border: 1px dashed #cbd7ce;
+            border-radius: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .host-note {
+            margin: 18px 4px 0;
+            color: var(--muted);
+            font-size: .84rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 680px) {
+            .host-header {
+                padding: 16px;
+            }
+
+            .host-main {
+                width: min(100% - 24px, 560px);
+                padding-top: 26px;
+            }
+
+            .host-form {
+                grid-template-columns: 1fr;
+            }
+
+            .host-form .host-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="host-page">
+    <header class="host-header">
+        <p class="host-brand">Green Olives <span aria-hidden="true">·</span> Host Station</p>
+        <span class="host-role">Front of house</span>
+    </header>
+
+    <main class="host-main">
+        <section class="host-intro" aria-labelledby="host-title">
+            <h1 id="host-title">Welcome! Ready to seat your guests?</h1>
+            <p>Check your floor, find a table for the party, and keep table status up to date.</p>
+        </section>
+
+        <section class="host-stats" aria-label="Table availability">
+            <div class="host-stat">
+                <span>Open tables</span>
+                <strong id="open-count" aria-live="polite">0</strong>
+            </div>
+            <div class="host-stat">
+                <span>Occupied tables</span>
+                <strong id="occupied-count" aria-live="polite">0</strong>
+            </div>
+        </section>
+
+        <section class="host-panel" aria-labelledby="guest-heading">
+            <div class="host-panel-heading">
+                <div>
+                    <h2 id="guest-heading">Greet and seat a party</h2>
+                    <p class="host-section-copy">Enter the guest name and party size to see tables with enough seats.</p>
+                </div>
+            </div>
+            <form class="host-form" id="guest-form">
+                <div class="host-field">
+                    <label for="guest-name">Guest name</label>
+                    <input id="guest-name" name="guestName" type="text" autocomplete="name" maxlength="60"
+                           placeholder="Name for the table" required>
+                </div>
+                <div class="host-field">
+                    <label for="party-size">Party size</label>
+                    <input id="party-size" name="partySize" type="number" min="1" max="12" value="2" required>
+                </div>
+                <button class="host-button" type="submit">Find an open table</button>
+            </form>
+            <p class="host-feedback" id="guest-feedback" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="host-panel" aria-labelledby="tables-heading">
+            <div class="host-panel-heading">
+                <div>
+                    <h2 id="tables-heading">Table status</h2>
+                    <p class="host-section-copy" id="table-instructions">Choose a party above to find a suitable open table.</p>
+                </div>
+                <button class="host-button host-button-secondary" id="show-all-tables" type="button">Show all tables</button>
+            </div>
+            <div class="host-table-grid" id="table-grid" aria-live="polite"></div>
+        </section>
+
+        <p class="host-note">Table status is saved in this browser on this device. It is not shared with other host stations.</p>
+    </main>
+
+    <script>
+        (() => {
+            const storageKey = "green-olives-host-tables";
+            const defaultTables = [
+                { number: 1, capacity: 2, guest: "", partySize: 0 },
+                { number: 2, capacity: 4, guest: "", partySize: 0 },
+                { number: 3, capacity: 6, guest: "", partySize: 0 },
+                { number: 4, capacity: 4, guest: "", partySize: 0 },
+                { number: 5, capacity: 2, guest: "", partySize: 0 },
+                { number: 6, capacity: 4, guest: "", partySize: 0 },
+                { number: 7, capacity: 6, guest: "", partySize: 0 },
+                { number: 8, capacity: 4, guest: "", partySize: 0 }
+            ];
+            const tableGrid = document.getElementById("table-grid");
+            const guestForm = document.getElementById("guest-form");
+            const guestName = document.getElementById("guest-name");
+            const partySizeInput = document.getElementById("party-size");
+            const guestFeedback = document.getElementById("guest-feedback");
+            const tableInstructions = document.getElementById("table-instructions");
+            let tables = defaultTables.map((table) => ({ ...table }));
+            let currentParty = null;
+
+            function showFeedback(message, isError) {
+                guestFeedback.textContent = message;
+                guestFeedback.classList.toggle("is-error", isError);
+            }
+
+            function saveTables() {
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(tables));
+                    return true;
+                } catch (error) {
+                    showFeedback("Table status could not be saved in this browser. Please try again.", true);
+                    return false;
+                }
+            }
+
+            function restoreTables() {
+                let savedTables;
+                try {
+                    savedTables = localStorage.getItem(storageKey);
+                } catch (error) {
+                    showFeedback("Table status could not be loaded from this browser. Showing the default table layout.", true);
+                    return;
+                }
+                if (savedTables === null) {
+                    return;
+                }
+
+                try {
+                    const parsedTables = JSON.parse(savedTables);
+                    const isValid = Array.isArray(parsedTables)
+                        && parsedTables.length === defaultTables.length
+                        && parsedTables.every((table) =>
+                            Number.isInteger(table.number)
+                            && Number.isInteger(table.capacity)
+                            && typeof table.guest === "string"
+                            && Number.isInteger(table.partySize)
+                        );
+
+                    if (!isValid) {
+                        throw new Error("Saved table data is invalid.");
+                    }
+                    tables = parsedTables;
+                } catch (error) {
+                    showFeedback("Saved table status could not be read. Showing the default table layout.", true);
+                }
+            }
+
+            function updateCounts() {
+                const openTables = tables.filter((table) => !table.guest).length;
+                document.getElementById("open-count").textContent = openTables;
+                document.getElementById("occupied-count").textContent = tables.length - openTables;
+            }
+
+            function makeEmptyMessage(message) {
+                const empty = document.createElement("p");
+                empty.className = "host-empty";
+                empty.textContent = message;
+                tableGrid.append(empty);
+            }
+            
+            function renderTables(availableOnly) {
+                tableGrid.replaceChildren();
+                const visibleTables = tables.filter((table) =>
+                    !availableOnly || (!table.guest && table.capacity >= currentParty.partySize)
+                );
+
+                if (visibleTables.length === 0) {
+                    makeEmptyMessage(availableOnly
+                        ? "No open tables fit this party right now. Please let the guests know and check back shortly."
+                        : "No tables to show.");
+                    return;
+                }
+
+                visibleTables.forEach((table) => {
+                    const occupied = Boolean(table.guest);
+                    const card = document.createElement("article");
+                    card.className = `host-table-card${occupied ? " is-occupied" : ""}`;
+
+                    const topline = document.createElement("div");
+                    topline.className = "host-table-topline";
+                    const heading = document.createElement("h3");
+                    heading.className = "host-table-name";
+                    heading.textContent = `Table ${table.number}`;
+                    const status = document.createElement("span");
+                    status.className = "host-status";
+                    status.textContent = occupied ? "Occupied" : "Open";
+                    topline.append(heading, status);
+
+                    const detail = document.createElement("p");
+                    detail.className = "host-table-detail";
+                    detail.textContent = occupied
+                        ? `${table.guest} · Party of ${table.partySize} · Seats ${table.capacity}`
+                        : `${table.capacity} seats${currentParty && table.capacity < currentParty.partySize
+                            ? " · Too small for this party"
+                            : ""}`;
+                    card.append(topline, detail);
+
+                    const action = document.createElement("button");
+                    action.type = "button";
+                    action.className = occupied
+                        ? "host-button host-button-release"
+                        : "host-button";
+                    if (occupied) {
+                        action.textContent = "Guest has left · Mark open";
+                        action.setAttribute("aria-label", `Mark table ${table.number} open`);
+                        action.addEventListener("click", () => releaseTable(table.number));
+                    } else {
+                        action.textContent = currentParty ? "Seat this party here" : "Select party to seat";
+                        action.disabled = !currentParty || table.capacity < currentParty.partySize;
+                        action.setAttribute("aria-label", `Seat party at table ${table.number}`);
+                        action.addEventListener("click", () => seatParty(table.number));
+                    }
+                    card.append(action);
+                    tableGrid.append(card);
+                });
+            }
+
+            function seatParty(tableNumber) {
+                const table = tables.find((candidate) => candidate.number === tableNumber);
+                if (!table || table.guest || !currentParty || table.capacity < currentParty.partySize) {
+                    showFeedback("That table is no longer available for this party. Please choose another open table.", true);
+                    renderTables(true);
+                    return;
+                }
+
+                table.guest = currentParty.name;
+                table.partySize = currentParty.partySize;
+                if (saveTables()) {
+                    showFeedback(`${currentParty.name} has been seated at table ${table.number}.`, false);
+                }
+                currentParty = null;
+                updateCounts();
+                tableInstructions.textContent = "When a guest leaves, mark their table open to seat the next party.";
+                renderTables(false);
+            }
+
+            function releaseTable(tableNumber) {
+                const table = tables.find((candidate) => candidate.number === tableNumber);
+                if (!table || !table.guest) {
+                    showFeedback("This table is already open.", true);
+                    return;
+                }
+
+                table.guest = "";
+                table.partySize = 0;
+                if (saveTables()) {
+                    showFeedback(`Table ${table.number} is open and ready for the next guests.`, false);
+                }
+                updateCounts();
+                renderTables(false);
+            }
+
+            guestForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const name = guestName.value.trim();
+                const partySize = Number(partySizeInput.value);
+                if (!name || !Number.isInteger(partySize) || partySize < 1 || partySize > 12) {
+                    showFeedback("Enter a guest name and a party size from 1 to 12.", true);
+                    return;
+                }
+
+                currentParty = { name, partySize };
+                tableInstructions.textContent = `Open tables that fit a party of ${partySize} are highlighted below.`;
+                showFeedback(`Welcome, ${name}! Here are the open tables for your party of ${partySize}.`, false);
+                renderTables(true);
+            });
+
+            document.getElementById("show-all-tables").addEventListener("click", () => {
+                currentParty = null;
+                tableInstructions.textContent = "Choose a party above to find a suitable open table.";
+                renderTables(false);
+            });
+
+            restoreTables();
+            updateCounts();
+            renderTables(false);
+        })();
+    </script>
+</body>
+</html>
