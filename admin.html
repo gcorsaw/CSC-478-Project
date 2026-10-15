@@ -1,148 +1,25 @@
-<!DOCTYPE html> 
-<html lang ="en" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, intial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#173d32">
-        <title>Admin Station | Green Olives</title>
+        <title>Admin Workspace | Green Olives</title>
         <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
-        <style>
-            .admin-page {
-                --ink: #18352d;
-                --muted: #64746d;
-                --green: #1e624b;
-                --green-dark: #174b3a;
-                --line: #e2e9e4;
-                --surface: #fff;
-                min-height: 100vh;
-                margin: 0;
-                padding: 0;
-                background: #f3f6f3;
-                color: var(--ink);
-                font-family: Arial, sans-serif;
-                text-align: left;
-            }
-           
-            .admin-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 16px;
-                padding: 18px clamp(18px, 5vw, 64px);
-                background: #173d32;
-                color: #fff;
-            }
-
-            .admin-brand {
-                margin: 0;
-                font-size: 1.2rem;
-                font-weight: 700;
-                letter-spacing: .02rem;
-            }
-
-            .admin-role {
-                padding: 8px 12px;
-                border: 1px solid rgba(255, 255, 255, .35); 
-                border-radius: 999px;
-                font-size: .88rem;
-            }
-
-            .admin-main {
-                width: min(1120px, calc(100% - 32px));
-                margin: 0 auto;
-                padding: 36px 0 56px;
-            }
-
-            .admin-intro {
-                margin-bottom: 24px;
-            }
-
-            .admin-intro h1 {
-                margin: 0 0 8px;
-                font-size: clamp(1.8rem, 4vw, 2.5rem);
-            }
-
-            .admin-intro p,
-            .admin-section-copy {
-                margin: 0;
-                color: var(--muted);
-                line-height: 1.5;
-            }
-
-            .admin-stats {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 12px;
-                margin-bottom: 20px;
-            }
-
-            .admin-stat,
-            .admin-panel {
-                border: 1px solid var(--line);
-                border-radius: 16px;
-                background: var(--surface);
-                box-shadow: 0 4px 18px rgba(24, 53, 45, .04);
-            }
-
-            .admin-stat {
-                padding: 16px 20px;
-            }
-
-            .admin-stat span {
-                display: block;
-                color: var(--muted);
-                font-size: .9rem;
-            }
-
-            .admin-stat strong {
-                display: block;
-                margin-top: 4px;
-                font-size: 1.8rem;
-            }
-
-            .admin-panel {
-                margin-top: 18px;
-                padding: clamp(18px, 3vw, 28px);
-            }
-
-            .admin-panel-heading {
-                display: flex;
-                align-items: flex-start;
-                justify-content: space-between;
-                gap: 16px;
-                margin-bottom: 20px;
-            }
-
-            .admin-panel h2 {
-                margin: 0 0 6px;
-                font-size: 1.3rem;
-            }
-            
-            .admin-form {
-                display: grid;
-                grid-template-columns: minmax(180px, 1fr) minmax(150px, .6fr) auto;
-                align-items: end;
-                gap: 14px;
-            }
-        
-            .admin-field label {
-                display: block;
-                margin-bottom: 7px;
-                font-size: .93rem;
-                font-weight: 700;
-            }
-
-            .admin-field input {
-                box-sizing: border-box;
-                width: 100%;
-                min-height: 52px;
-                padding: 12px 14px;
-                border: 1px solid #cbd7ce;
-                border-radius: 10px;
-                background: #fff;
-                color: var(--ink);
-                font: inherit;
-            }
-        </style>
     </head>
+    <body class="staff-page">
+        <header class="staff-header">
+            <a class="staff-brand" href="restaurant.html" th:href="@{/}">Green Olives</a>
+            <span>Admin / Maintenance workspace</span>
+        </header>
+        <main class="staff-main">
+            <p class="eyebrow">Staff access</p>
+            <h1>Admin / Maintenance workspace</h1>
+            <section class="staff-card">
+                <h2>Welcome, administrator</h2>
+                <p>This workspace is ready for system maintenance tools. Administrative features are not connected yet.</p>
+                <a class="navi-button staff-home-link" href="restaurant.html" th:href="@{/}">Back to operations portal</a>
+            </section>
+        </main>
+    </body>
 </html>

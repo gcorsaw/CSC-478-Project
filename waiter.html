@@ -2,7 +2,6 @@
 <html lang ="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, intial-scale=1.0">
         <meta name="theme-color" content="#173d32">
         <title>Waiter Station | Green Olives</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -302,12 +301,15 @@
     <body class="waiter-page">
         <header class="waiter-header">
             <p class="waiter-brand">Green Olives <span aria-hidden="true">.</span> Waiter Station</p>
-            <span class="waiter-role">Waiter</span>
+            <div class="waiter-role">
+                <span>Waiter</span>
+                <a class="navi-button staff-home-link" href="restaurant.html" th:href="@{/}">Operations portal</a>
+            </div>
         </header>
 
     <main class="waiter-main">
         <section class="waiter-intro" aria-labelledby="waiter-title">
-            <h1 id="waiter-title">Welcome to the Waiter Station. Ready to tend to your guests></h1>
+            <h1 id="waiter-title">Welcome to the Waiter Station. Ready to tend to your guests?</h1>
             <p>Check your assigned tables and start serving your guests.</p>
         </section>
 

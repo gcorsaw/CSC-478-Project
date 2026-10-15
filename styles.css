@@ -238,13 +238,72 @@ h3 {
     background: var(--green-dark);
 }
 
+.staff-page {
+    min-height: 100vh;
+}
+
+.staff-header {
+    display: flex;
+    min-height: 76px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px max(20px, calc((100% - 1040px) / 2));
+    color: #d7e5dd;
+    background: #173d32;
+}
+
+.staff-brand {
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.staff-brand:focus-visible,
+.staff-home-link:focus-visible {
+    outline: 3px solid #8bb9a5;
+    outline-offset: 3px;
+}
+
+.staff-main {
+    width: min(760px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 48px 0 64px;
+}
+
+.staff-main h1 {
+    margin: 0 0 24px;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+}
+
+.staff-card {
+    padding: clamp(20px, 3vw, 30px);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 8px 24px rgba(24, 53, 45, .05);
+}
+
+.staff-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+}
+
+.staff-card p {
+    margin: 0 0 20px;
+    color: var(--muted);
+}
+
 @media (max-width: 680px) {
-    .site-header-inner {
+    .site-header-inner,
+    .staff-header {
         min-height: 66px;
     }
 
     .landing-main,
-    .management-main {
+    .management-main,
+    .staff-main {
         padding: 32px 0 44px;
     }
 

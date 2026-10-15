@@ -1,10 +1,25 @@
-<!DOCTYPE html> 
-<html lang ="en">
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, intial-scale=1.0">
-        <title>Chef UI</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#173d32">
+        <title>Chef Workspace | Green Olives</title>
         <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
-        
     </head>
+    <body class="staff-page">
+        <header class="staff-header">
+            <a class="staff-brand" href="restaurant.html" th:href="@{/}">Green Olives</a>
+            <span>Chef workspace</span>
+        </header>
+        <main class="staff-main">
+            <p class="eyebrow">Staff access</p>
+            <h1>Chef workspace</h1>
+            <section class="staff-card">
+                <h2>Welcome to the kitchen</h2>
+                <p>This workspace is ready for kitchen tools. Order management features are not connected yet.</p>
+                <a class="navi-button staff-home-link" href="restaurant.html" th:href="@{/}">Back to operations portal</a>
+            </section>
+        </main>
+    </body>
 </html>
