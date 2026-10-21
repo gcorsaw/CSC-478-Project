@@ -25,9 +25,21 @@ this directory contains the Java source files from this project and the
 provided `restaurantapptest.zip`. It includes `.java` source files only, not
 compiled `.class` files.
 
-## Start PostgreSQL
+## Start the database and web app
 
-Start the database service in the background:
+From the project directory, build and start both services:
+
+```bash
+docker compose up --build -d
+```
+
+Open the web app at <http://localhost:8080/>. PostgreSQL is exposed for database
+clients on `localhost:5433`; it is not an HTTP website. The default local demo
+credentials are database `app`, user `postgres`, and password `change-me`.
+Set `POSTGRES_PASSWORD` in your environment before starting Compose to use a
+different password. Do not use the demo password outside local development.
+
+To start only PostgreSQL:
 
 ```bash
 docker compose up -d postgres_db
@@ -41,13 +53,13 @@ docker ps
 
 ## Test the SQL Script
 
-Recommended command. It automatically finds the running PostgreSQL 16 container and reads its configured credentials:
+Recommended command. It finds the running PostgreSQL 16 container, creates a
+uniquely named temporary database, runs `Restaurant_Database.sql` twice to
+check repeat initialization, and removes the temporary database:
 
 ```bash
 ./test_database.sh
 ```
-
-The test creates a temporary database, runs `Restaurant_Database.sql`, and removes the temporary database when finished.
 
 To specify the container, PostgreSQL user, and database manually:
 
@@ -55,7 +67,7 @@ To specify the container, PostgreSQL user, and database manually:
 ./test_database.sh my_postgres_db myuser mydatabase
 ```
 
-For a fresh container matching `docker_compose.yaml`:
+For a container matching `docker-compose.yaml`:
 
 ```bash
 ./test_database.sh postgres_db postgres app
@@ -64,7 +76,7 @@ For a fresh container matching `docker_compose.yaml`:
 A successful test ends with:
 
 ```text
-Database script passed. Temporary database removed.
+Database script passed twice. Temporary database removed.
 ```
 
 The notice about the temporary database not existing is harmless:
@@ -75,12 +87,11 @@ NOTICE: database "restaurant_schema_test" does not exist, skipping
 
 ## Open PostgreSQL
 
-Automatically inspect the active container:
+Connect to PostgreSQL from a terminal:
 
 ```bash
-docker exec -it my_postgres_db psql -U myuser -d mydatabase
+docker exec -it postgres_db psql -U postgres -d app
 ```
-* Note: the myuser is going to be postgres (refer to the docker-compose.yaml file for that information)
 
 Inside `psql`, list tables:
 
@@ -213,9 +224,21 @@ git remote -v
 git status
 ```
 
-## Stop PostgreSQL
+## Run the web app without Docker
 
-Stop the services without deleting database data:
+Keep PostgreSQL running, then run:
+
+```bash
+mvn spring-boot:run
+```
+
+The default local database connection matches the Compose settings. Override
+`SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and
+`SPRING_DATASOURCE_PASSWORD` if your database uses different credentials.
+
+## Stop the services
+
+Stop the containers without deleting database data:
 
 ```bash
 docker compose down

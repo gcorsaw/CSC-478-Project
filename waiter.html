@@ -6,6 +6,7 @@
         <title>Waiter Station | Green Olives</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
+        <link rel="stylesheet" href="/app.css">
         <style>
             .waiter-page {
                 --ink: #18352d;
@@ -315,11 +316,11 @@
 
         <section class="waiter-stats" aria-label="Guests">
             <div class="waiter-stat waiter-panel">
-                <span>Guests Served</span>
-                <strong id ="open-count" aria-live="polite">0</strong>
+                <span>Occupied Tables</span>
+                <strong id="open-count" aria-live="polite">0</strong>
             </div>
             <div class="waiter-stat">
-                <span>Guests Waiting</span>
+                <span>Open Tables</span>
                 <strong id="closed-count" aria-live="polite">0</strong>
             </div>
         </section>
@@ -350,7 +351,7 @@
             <div class="waiter-panel-heading">
                 <div>
                 <h2 id="tables-heading">Table Status</h2>
-                <p class="waiter-section-copy" id="table instructions">Check your assigned tables and their current status.</p>
+                <p class="waiter-section-copy" id="table-instructions">Check your tables and their current status.</p>
             </div>
             <button class="waiter-button waiter-button-secondary" id="show-all-tables" type="button">Show all seated guests</button>
             </div>
@@ -358,111 +359,10 @@
             </div>
         </section>
 
-        <p class="waiter-note">Note: Guests status is saved in this browser on this device. It is not shared with other host stations.</p>
+        <p class="waiter-note">Table status is shared through the restaurant database with other connected stations.</p>
     </main>
 
-    <script>
-        (() => {
-            const storageKey = "green-olives-waiter-tables";
-            const defaultTables = [
-                { number: "Table 1", capacity: 2, status: "occupied" },
-                { number: "Table 2", capacity: 4, status: "occupied" },
-                { number: "Table 3", capacity: 3, status: "occupied" },
-                { number: "Table 4", capacity: 5, status: "occupied" },
-                { number: "Table 5", capacity: 2, status: "occupied" },
-                { number: "Table 6", capacity: 4, status: "occupied" },
-                { number: "Table 7", capacity: 3, status: "occupied" },
-                { number: "Table 8", capacity: 5, status: "occupied" },
-            ];
-            const tableGrid = document.getElementById("table-grid");
-            const guestForm = document.getElementById("guest-form");
-            const guestName = document.getElementById("guest-name");
-            const partySizeInput = document.getElementById("party-size");
-            const guestFeedback = document.getElementById("waiter-feedback");
-            const tableInstructions = document.getElementById("table instructions");
-            let tables = defaultTables.map(table => ({ ...table, guestName: "", partySize: 0 }));
-            let currentParty = null;
-
-            function showFeedback(message, isError) {
-                guestFeedback.textContent = message;
-                guestFeedback.classList.toggle("is-error", isError);
-            }
-
-            function saveTables() {
-                try {
-                    localStorage.setItem(storageKey, JSON.stringify(tables));
-                    return true;
-                } catch (error) {
-                    showFeedback("Error saving table data.", true);
-                    return false;
-                }
-            }
-
-            function restoreTables() {
-                let savedTables;
-                try {
-                    savedTables = JSON.parse(localStorage.getItem(storageKey));
-                } catch (error) {
-                    showFeedback("Error restoring table data.", true);
-                    return;
-                }
-                if (savedTables === null) {
-                    return;
-                }
-
-                try {
-                    const parsedTables = JSON.parse(savedTables);
-                    const isValid = Array.isArray(parsedTables)
-                        && parsedTables.length === defaultTables.length
-                        && parsedTables.every((table) =>
-                            Number.isInteger(table.number)
-                            && Number.isInteger(table.capacity)
-                            && typeof table.guest === "string"
-                            && Number.isInteger(table.partySize)
-                        );
-
-                    if (!isValid) {
-                        throw new Error("Saved table data is invalid.");
-                    }
-                    tables = parsedTables;
-
-                     } catch (error) {
-                    showFeedback("Saved table status could not be read", true);
-                }
-            }
-
-            function updateCounts() {
-                const openTables = tables.filter((table) => !table.guest).length;
-                document.getElementById("open-count").textContent = openTables;
-                document.getElementById("occupied-count").textContent = tables.length - openTables;
-            }
-
-            function makeEmptyMessage(message) {
-                const empty = document.createElement("p");
-                empty.className = "waiter-empty";
-                empty.textContent = message;
-                tableGrid.append(empty);
-            }
-             function renderTables(availableOnly) {
-                tableGrid.replaceChildren();
-                const visibleTables = tables.filter((table) =>
-                    !availableOnly || (!table.guest && table.capacity >= currentParty.partySize)
-                );
-
-                if (visibleTables.length === 0) {
-                    makeEmptyMessage(availableOnly
-                        ? "No open tables fit this party right now. Please let the guests know and check back shortly."
-                        : "No tables to show.");
-                    return;
-                }
-
-
-
-
-                
-             }
-            
-        })();
-    </script>
+    <script src="/js/app.js"></script>
+    <script src="/js/waiter.js"></script>
     </body>
 </html>

@@ -66,8 +66,13 @@ create table if not exists dining_table(
     seats int not null check (seats > 0),
     table_status text not null default 'open'
         check (table_status in ('open', 'occupied')),
+    guest_name text not null default '',
+    party_size int not null default 0 check (party_size >= 0),
     table_update timestamp not null default now()
 );
+
+alter table dining_table add column if not exists guest_name text not null default '';
+alter table dining_table add column if not exists party_size int not null default 0;
 
 create table if not exists table_assignment(
     table_id int not null references dining_table(table_id) on delete cascade,
@@ -92,9 +97,12 @@ create table if not exists customer_order(
     table_id int not null references dining_table(table_id),
     waiter_id int not null references waiter_station(waiter_id),
     order_status text not null default 'open' check (order_status in ('open', 'closed')),
+    sample_order boolean not null default false,
     order_creation timestamp not null default now(),
     order_update timestamp not null default now()
 );
+
+alter table customer_order add column if not exists sample_order boolean not null default false;
 
 create table if not exists order_item(
     order_item_id int generated always as identity primary key,
@@ -123,20 +131,31 @@ insert into worker (first_name, last_name, username, password_hash) values
     ('Sam',  'Lee',    'slee',   'hash_placeholder_2'),   -- waiter only
     ('Alex', 'Kim',    'akim',   'hash_placeholder_3'),   -- chef
     ('Pat',  'Nguyen', 'pnguyen','hash_placeholder_4'),   -- host
-    ('Robin','Patel',  'rpatel', 'hash_placeholder_5');   -- owner
+    ('Robin','Patel',  'rpatel', 'hash_placeholder_5')   -- owner
+on conflict (username) do nothing;
  
-insert into waiter_station (worker_id) select worker_id from worker where username in ('jdoe','slee');
-insert into manager_station (worker_id) select worker_id from worker where username = 'jdoe';
-insert into chef_station (worker_id) select worker_id from worker where username = 'akim';
-insert into host_station (worker_id) select worker_id from worker where username = 'pnguyen';
-insert into owner_station (worker_id) select worker_id from worker where username = 'rpatel';
+insert into waiter_station (worker_id) select worker_id from worker where username in ('jdoe','slee')
+on conflict (worker_id) do nothing;
+insert into manager_station (worker_id) select worker_id from worker where username = 'jdoe'
+on conflict (worker_id) do nothing;
+insert into chef_station (worker_id) select worker_id from worker where username = 'akim'
+on conflict (worker_id) do nothing;
+insert into host_station (worker_id) select worker_id from worker where username = 'pnguyen'
+on conflict (worker_id) do nothing;
+insert into owner_station (worker_id) select worker_id from worker where username = 'rpatel'
+on conflict (worker_id) do nothing;
  
 -- Dining tables
 insert into dining_table (table_number, seats) values
     (1, 2),
     (2, 4),
     (3, 4),
-    (4, 6);
+    (4, 6),
+    (5, 2),
+    (6, 4),
+    (7, 6),
+    (8, 4)
+on conflict (table_number) do nothing;
  
 -- Table assignments (manager assigns waiters to tables)
 insert into table_assignment (table_id, waiter_id)
@@ -145,70 +164,85 @@ insert into table_assignment (table_id, waiter_id)
     cross join waiter_station ws
     join worker w on w.worker_id = ws.worker_id
     where (dt.table_number in (1,2) and w.username = 'jdoe')
-       or (dt.table_number in (3,4) and w.username = 'slee');
+       or (dt.table_number in (3,4) and w.username = 'slee')
+on conflict (table_id, waiter_id) do nothing;
  
 -- Menu
-insert into menu_items (item_name, category, price) values
+insert into menu_items (item_name, category, price)
+select sample.item_name, sample.category, sample.price
+from (values
     ('Caesar Salad',      'starter', 9.50),
     ('Garlic Bread',      'starter', 6.00),
     ('Grilled Salmon',    'main',   22.00),
     ('Margherita Pizza',  'main',   15.50),
     ('Tiramisu',          'dessert', 7.50),
     ('Iced Tea',          'drink',   3.00),
-    ('Sparkling Water',   'drink',   2.50);
+    ('Sparkling Water',   'drink',   2.50),
+    ('Garden Salad',      'starter', 6.99),
+    ('Soup of the Day',   'starter', 4.99),
+    ('Grilled Chicken',   'main',    8.99),
+    ('Classic Cheeseburger', 'main', 9.99),
+    ('Vegetable Pasta',   'main',   10.99),
+    ('Chocolate Cake',    'dessert', 6.99),
+    ('Ice Cream',         'dessert', 4.99),
+    ('Cheesecake',        'dessert', 5.99),
+    ('Coffee',            'drink',   1.99),
+    ('Tea',               'drink',   2.49),
+    ('Any Soda',          'drink',   2.99)
+) as sample(item_name, category, price)
+where not exists (
+    select 1 from menu_items existing where existing.item_name = sample.item_name
+);
 
--- Mark table 1 occupied since we're about to seat an order there
-update dining_table set table_status = 'occupied' where table_number = 1;
-
--- An order at table 1, taken by Jane (jdoe)
-insert into customer_order (table_id, waiter_id)
-    select dt.table_id, ws.waiter_id
+-- Insert the sample order once; normal app orders are never reseeded or closed on startup.
+insert into customer_order (table_id, waiter_id, sample_order)
+    select dt.table_id, ws.waiter_id, true
     from dining_table dt
     cross join waiter_station ws
     join worker w on w.worker_id = ws.worker_id
-    where dt.table_number = 1 and w.username = 'jdoe';
+    where dt.table_number = 1 and w.username = 'jdoe'
+      and not exists (select 1 from customer_order where sample_order);
  
 insert into order_item (order_id, item_id, quantity, kitchen_status)
     select co.order_id, m.item_id, 1, 'in_progress'
     from customer_order co
     cross join menu_items m
     join dining_table dt on co.table_id = dt.table_id
-    where dt.table_number = 1 and co.order_status = 'open' and m.item_name = 'Caesar Salad';
+    where co.sample_order and co.order_status = 'open' and m.item_name = 'Caesar Salad'
+      and not exists (select 1 from order_item oi where oi.order_id = co.order_id and oi.item_id = m.item_id);
  
 insert into order_item (order_id, item_id, quantity, kitchen_status)
     select co.order_id, m.item_id, 2, 'standing_by'
     from customer_order co
     cross join menu_items m
     join dining_table dt on co.table_id = dt.table_id
-    where dt.table_number = 1 and co.order_status = 'open' and m.item_name = 'Margherita Pizza';
+    where co.sample_order and co.order_status = 'open' and m.item_name = 'Margherita Pizza'
+      and not exists (select 1 from order_item oi where oi.order_id = co.order_id and oi.item_id = m.item_id);
  
 insert into order_item (order_id, item_id, quantity, kitchen_status)
     select co.order_id, m.item_id, 2, 'done'
     from customer_order co
     cross join menu_items m
     join dining_table dt on co.table_id = dt.table_id
-    where dt.table_number = 1 and co.order_status = 'open' and m.item_name = 'Iced Tea';
+    where co.sample_order and co.order_status = 'open' and m.item_name = 'Iced Tea'
+      and not exists (select 1 from order_item oi where oi.order_id = co.order_id and oi.item_id = m.item_id);
  
 -- Payment closing out that order
 insert into payment (order_id, amount, tip)
     select co.order_id, 46.50, 8.00 
     from customer_order co
     join dining_table dt on co.table_id = dt.table_id
-    where dt.table_number = 1 and co.order_status = 'open';
+    where co.sample_order and co.order_status = 'open'
+      and not exists (select 1 from payment p where p.order_id = co.order_id);
  
 update customer_order 
 set order_status = 'closed' 
-where order_id = (
-    select co.order_id 
-    from customer_order co 
-    join dining_table dt on co.table_id = dt.table_id 
-    where dt.table_number = 1 and co.order_status = 'open'
-);
-
-update dining_table set table_status = 'open' where table_number = 1;
+where sample_order and order_status = 'open';
 
 -- New Test cases 
-insert into admin_station(worker_id) select worker_id from worker where username = 'rpatel';
+insert into admin_station(worker_id) select worker_id from worker where username = 'rpatel'
+on conflict (worker_id) do nothing;
 
 insert into worker(first_name, last_name, username, password_hash, is_active) values
-('Former', 'Employee', 'fformer','hash_placeholder_6', false);
+('Former', 'Employee', 'fformer','hash_placeholder_6', false)
+on conflict (username) do nothing;

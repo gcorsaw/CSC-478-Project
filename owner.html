@@ -1,25 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="theme-color" content="#173d32">
-        <title>Owner Workspace | Green Olives</title>
-        <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
-    </head>
-    <body class="staff-page">
-        <header class="staff-header">
-            <a class="staff-brand" href="restaurant.html" th:href="@{/}">Green Olives</a>
-            <span>Owner workspace</span>
-        </header>
-        <main class="staff-main">
-            <p class="eyebrow">Staff access</p>
-            <h1>Owner workspace</h1>
-            <section class="staff-card">
-                <h2>Welcome, owner</h2>
-                <p>This workspace is ready for owner-level business tools. Operational features are not connected yet.</p>
-                <a class="navi-button staff-home-link" href="restaurant.html" th:href="@{/}">Back to operations portal</a>
-            </section>
-        </main>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173d32">
+    <title>Owner Workspace | Green Olives</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body class="staff-page">
+    <header class="staff-header">
+        <a class="staff-brand" href="/restaurant.html">Green Olives</a>
+        <span>Owner workspace</span>
+    </header>
+    <main class="staff-main">
+        <p class="eyebrow">Staff access</p>
+        <h1>Owner workspace</h1>
+        <section class="staff-card">
+            <h2>Restaurant overview</h2>
+            <p>Live operational summary from the restaurant database.</p>
+            <div class="role-stat-grid" id="owner-summary" aria-live="polite"></div>
+            <p class="role-feedback" id="owner-feedback" role="status" aria-live="polite"></p>
+        </section>
+        <section class="staff-card">
+            <h2>Recent orders</h2>
+            <ul id="owner-orders"></ul>
+        </section>
+        <a class="navi-button staff-home-link" href="/restaurant.html">Back to operations portal</a>
+    </main>
+    <script src="/js/app.js"></script>
+    <script src="/js/owner.js"></script>
+</body>
 </html>

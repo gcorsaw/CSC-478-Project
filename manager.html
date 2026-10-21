@@ -1,25 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="theme-color" content="#173d32">
-        <title>Manager Workspace | Green Olives</title>
-        <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
-    </head>
-    <body class="staff-page">
-        <header class="staff-header">
-            <a class="staff-brand" href="restaurant.html" th:href="@{/}">Green Olives</a>
-            <span>Manager workspace</span>
-        </header>
-        <main class="staff-main">
-            <p class="eyebrow">Staff access</p>
-            <h1>Manager workspace</h1>
-            <section class="staff-card">
-                <h2>Welcome, manager</h2>
-                <p>This workspace is ready for restaurant management tools. Operational features are not connected yet.</p>
-                <a class="navi-button staff-home-link" href="restaurant.html" th:href="@{/}">Back to operations portal</a>
-            </section>
-        </main>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173d32">
+    <title>Manager Workspace | Green Olives</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body class="staff-page">
+    <header class="staff-header">
+        <a class="staff-brand" href="/restaurant.html">Green Olives</a>
+        <span>Manager workspace</span>
+    </header>
+    <main class="staff-main">
+        <p class="eyebrow">Staff access</p>
+        <h1>Manager workspace</h1>
+        <section class="staff-card">
+            <h2>Floor and order overview</h2>
+            <div class="role-stat-grid" id="manager-summary" aria-live="polite"></div>
+            <p class="role-feedback" id="manager-feedback" role="status" aria-live="polite"></p>
+        </section>
+        <section class="staff-card">
+            <h2>Assign a waiter to a table</h2>
+            <form id="assignment-form" class="role-form">
+                <label for="assignment-table">Table</label>
+                <select id="assignment-table" required></select>
+                <label for="assignment-waiter">Waiter</label>
+                <select id="assignment-waiter" required></select>
+                <button class="navi-button" type="submit">Save assignment</button>
+            </form>
+            <p id="assignment-feedback" class="role-feedback" role="status" aria-live="polite"></p>
+            <ul id="assignment-list"></ul>
+        </section>
+        <section class="staff-card">
+            <h2>Recent orders</h2>
+            <ul id="manager-orders"></ul>
+            <a class="navi-button" href="/orders.html">Create or review orders</a>
+            <a class="navi-button" href="/tables.html">Manage tables</a>
+        </section>
+        <a class="navi-button staff-home-link" href="/restaurant.html">Back to operations portal</a>
+    </main>
+    <script src="/js/app.js"></script>
+    <script src="/js/manager.js"></script>
+</body>
 </html>

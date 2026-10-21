@@ -3,44 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu</title>
-    <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
+    <title>Menu | Green Olives</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/app.css">
 </head>
-<body>
-    <main>
-        
+<body class="data-page">
+    <main class="data-main">
+        <a class="navi-button" href="/restaurant.html">Operations portal</a>
         <h1>Our Menu</h1>
-        <section>
-            <h2>Starters</h2>
-            <ul>
-                <li>Garlic Bread <span>$5.99</span></li>
-                <li>Garden Salad <span>$6.99</span></li>
-                <li>Soup of the Day <span>$4.99</span></li>
-            </ul>
-        </section>
-        <section>
-            <h2>Main Courses</h2>
-            <ul>
-                <li>Grilled Chicken <span>$8.99</span></li>
-                <li>Classic Cheeseburger <span>$9.99</span></li>
-                <li>Vegetable Pasta <span>$10.99</span></li>
-            </ul>
-        </section>
-        <section>
-            <h2>Desserts</h2>
-            <ul>
-                <li>Chocolate Cake <span>$6.99</span></li>
-                <li>Ice Cream <span>$4.99</span></li>
-                <li>Cheesecake <span>$5.99</span></li>
-            </ul>
-        </section>
-            <h2>Beverages</h2>
-            <ul>
-                <li>Coffee <span>$1.99</span></li>
-                <li>Tea <span>$2.49</span></li>
-                <li>Any Soda <span>$2.99</span></li>
-            </ul>
-        </section>
+        <p id="menu-feedback" class="data-feedback" role="status" aria-live="polite"></p>
+        <div id="menu-content" class="menu-content"></div>
     </main>
+    <script src="/js/app.js"></script>
+    <script src="/js/menu.js"></script>
 </body>
 </html>

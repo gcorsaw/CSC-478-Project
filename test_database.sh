@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-test_database="${4:-restaurant_schema_test}"
+test_database="${4:-restaurant_schema_test_$$}"
 
 if [[ $# -eq 0 ]]; then
-    container_name="$(docker ps --filter ancestor=postgres:16 --format '{{.Names}}' | head -n 1)"
+    container_name="$(docker ps --format '{{.Names}} {{.Image}}' \
+        | awk '$2 ~ /^postgres:16([.-]|$)/ { print $1; exit }')"
     if [[ -z "${container_name}" ]]; then
         echo "No running PostgreSQL 16 container was found. Start it with: docker compose up -d" >&2
         exit 1
@@ -37,10 +38,13 @@ cleanup() {
 }
 trap cleanup EXIT
 
-docker exec -i "${container_name}" psql \
-    --username="${database_user}" \
-    --dbname="${test_database}" \
-    --set=ON_ERROR_STOP=1 \
-    < Restaurant_Database.sql
+for run in 1 2; do
+    echo "Applying database script (run ${run}/2)"
+    docker exec -i "${container_name}" psql \
+        --username="${database_user}" \
+        --dbname="${test_database}" \
+        --set=ON_ERROR_STOP=1 \
+        < Restaurant_Database.sql
+done
 
-echo "Database script passed. Temporary database removed."
+echo "Database script passed twice. Temporary database removed."
