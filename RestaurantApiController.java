@@ -1,78 +1,56 @@
 package csc478project.restaurantapp;
 
 import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpSession;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api")
+@CrossOrigin(origins = "*") // Allows local front-end testing if running separately
 public class RestaurantApiController {
 
-    private final TerminalSessionService sessionService;
+    // Dummy tracking storage mapping to your database entities
+    private final List<Map<String, Object>> activeOrders = new ArrayList<>();
+    private final List<Map<String, Object>> tableStatus = new ArrayList<>();
 
-    public RestaurantApiController(TerminalSessionService sessionService) {
-        this.sessionService = sessionService;
+    @GetMapping("/orders")
+    public List<Map<String, Object>> getOrders() {
+        return activeOrders;
     }
 
-    @PostMapping("/terminal/auth")
-    public Map<String, Object> handleAuth(@RequestParam String empId, @RequestParam String pin, HttpSession session) {
-        String resolvedRole = sessionService.validateCredentials(empId, pin);
-        if (!"GUEST".equals(resolvedRole)) {
-            session.setAttribute("UID", empId);
-            session.setAttribute("ROLE", resolvedRole);
-            return Map.of("success", true, "role", resolvedRole, "empId", empId);
+    @PostMapping("/orders")
+    public Map<String, Object> createOrder(@RequestBody Map<String, Object> order) {
+        order.put("id", UUID.randomUUID().toString());
+        order.put("status", "PENDING");
+        activeOrders.add(order);
+        return order;
+    }
+
+    @PutMapping("/orders/{id}/status")
+    public Map<String, Object> updateOrderStatus(@PathVariable String id, @RequestBody Map<String, String> body) {
+        for (Map<String, Object> order : activeOrders) {
+            if (order.get("id").equals(id)) {
+                order.put("status", body.get("status"));
+                return order;
+            }
         }
-        return Map.of("success", false, "message", "Access Denied.");
+        throw new RuntimeException("Order not found");
     }
 
-    @GetMapping("/terminal/identity")
-    public Map<String, Object> getIdentity(HttpSession session) {
-        Object uid = session.getAttribute("UID");
-        Object role = session.getAttribute("ROLE");
-        if (uid != null) {
-            return Map.of("authenticated", true, "role", role, "uid", uid);
+    @GetMapping("/tables")
+    public List<Map<String, Object>> getTables() {
+        return tableStatus;
+    }
+
+    @PutMapping("/tables/{tableNumber}")
+    public Map<String, Object> updateTable(@PathVariable int tableNumber, @RequestBody Map<String, Object> status) {
+        for (Map<String, Object> table : tableStatus) {
+            if (table.get("tableNumber").equals(tableNumber)) {
+                table.putAll(status);
+                return table;
+            }
         }
-        return Map.of("authenticated", false, "role", "GUEST");
-    }
-
-    @GetMapping("/tables/layout")
-    public Collection<RestaurantTable> fetchLayout() {
-        return sessionService.getAllTables();
-    }
-
-    @PostMapping("/override/raise")
-    public Map<String, Object> raiseRequest(@RequestParam int tableId, @RequestParam String description, HttpSession session) {
-        Object uid = session.getAttribute("UID");
-        if (uid == null) throw new RuntimeException("Unauthenticated terminal session.");
-        return sessionService.createOverride(uid.toString(), tableId, description);
-    }
-
-    @GetMapping("/override/incoming")
-    public List<Map<String, Object>> showManagerQueue(HttpSession session) {
-        Object role = session.getAttribute("ROLE");
-        if ("MANAGER".equals(role) || "OWNER".equals(role)) {
-            return sessionService.getPendingRequests();
-        }
-        throw new RuntimeException("Clearance level violation.");
-    }
-
-    @PostMapping("/override/signoff")
-    public Map<String, Object> signoff(@RequestParam int ticketId, @RequestParam String decision, HttpSession session) {
-        Object uid = session.getAttribute("UID");
-        Object role = session.getAttribute("ROLE");
-        if (!"MANAGER".equals(role) && !"OWNER".equals(role)) throw new RuntimeException("Access Denied.");
-        boolean state = sessionService.updateOverride(ticketId, decision, uid.toString());
-        return Map.of("success", state);
-    }
-
-    @GetMapping("/override/poll/{ticketId}")
-    public Map<String, Object> trackTicket(@PathVariable int ticketId) {
-        return sessionService.checkStatus(ticketId);
-    }
-    
-    @PostMapping("/terminal/clear")
-    public Map<String, String> logout(HttpSession session) {
-        session.invalidate();
-        return Map.of("status", "TERMINAL_LOCKED");
+        status.put("tableNumber", tableNumber);
+        tableStatus.add(status);
+        return status;
     }
 }
