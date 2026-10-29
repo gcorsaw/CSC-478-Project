@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
     <head>
         <meta charset = "UTF-8">
         <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
         <title>Green Olives Kiosk</title>
-        <link rel="stylesheet" href="styles.css" th:href="@{/styles.css}">
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body class="landing-page">
         <header class="site-header">
@@ -23,27 +23,28 @@
                 <section class="portal-card customer-card" aria-labelledby="customer-title">
                     <h2 id="customer-title">Customer ordering</h2>
                     <p>Start a dine-in order from the customer kiosk.</p>
-                    <a class="navi-button start-button" href="menu.html" th:href="@{/menu}">Start Dine-In Order</a>
+                    <a class="navi-button start-button" href="menu.html">Start Dine-In Order</a>
                 </section>
                 <section class="portal-card" aria-labelledby="staff-title">
                     <h2 id="staff-title">Staff access</h2>
                     <p>Open the workspace that matches your role.</p>
                     <nav class="staff-nav" aria-label="Staff interfaces">
-                        <a class="navi-button" href="owner.html" th:href="@{/owner}">Owner</a>
-                        <a class="navi-button" href="manager.html" th:href="@{/manager}">Manager</a>
-                        <a class="navi-button" href="admin.html" th:href="@{/admin}">Admin / Maintenance</a>
-                        <a class="navi-button" href="chef.html" th:href="@{/chef}">Chef</a>
-                        <a class="navi-button" href="waiter.html" th:href="@{/waiter}">Waiter</a>
-                        <a class="navi-button" href="host.html" th:href="@{/host}">Host</a>
+                        <a class="navi-button" href="owner.html">Owner</a>
+                        <a class="navi-button" href="manager.html">Manager</a>
+                        <a class="navi-button" href="admin.html">Admin / Maintenance</a>
+                        <a class="navi-button" href="chef.html">Chef</a>
+                        <a class="navi-button" href="waiter.html">Waiter</a>
+                        <a class="navi-button" href="host.html">Host</a>
                     </nav>
                 </section>
                 <section class="portal-card" aria-labelledby="data-tools-title">
                     <h2 id="data-tools-title">Operations data</h2>
                     <p>View and manage restaurant tables and orders.</p>
                     <nav class="staff-nav" aria-label="Restaurant data">
-                        <a class="navi-button" href="/tables.html">Tables</a>
-                        <a class="navi-button" href="/orders.html">Orders</a>
-                        <a class="navi-button" href="/menu.html">Menu</a>
+                        <a class="navi-button" href="tables.html">Tables</a>
+                        <a class="navi-button" href="orders.html">Orders</a>
+                        <a class="navi-button" href="menu.html">Menu</a>
+                        <a class="navi-button" href="kitchen.html">Kitchen Display</a>
                     </nav>
                 </section>
             </div>

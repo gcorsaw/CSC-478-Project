@@ -44,7 +44,7 @@ for run in 1 2; do
         --username="${database_user}" \
         --dbname="${test_database}" \
         --set=ON_ERROR_STOP=1 \
-        < Restaurant_Database.sql
+        < src/main/resources/Restaurant_Database.sql
 done
 
 echo "Database script passed twice. Temporary database removed."

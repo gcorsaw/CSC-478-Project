@@ -1,3 +1,9 @@
+/* app.css
+   Styles for the data pages (menu, orders, tables), the role dashboards
+   (manager, owner, admin), and the kitchen display (chef, kitchen).
+   Load this AFTER styles.css: it uses the color variables defined there. */
+
+/* ---------- Data pages ---------- */
 .data-main {
     width: min(900px, calc(100% - 32px));
     margin: 32px auto;
@@ -33,34 +39,72 @@
     background: var(--green);
     font-weight: 700;
     cursor: pointer;
+    transition: background-color .15s ease;
+}
+
+.data-panel button:hover {
+    background: var(--green-dark);
+}
+
+.data-panel button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.data-panel input:focus-visible,
+.data-panel select:focus-visible,
+.data-panel button:focus-visible,
+.role-form select:focus-visible {
+    outline: 3px solid #8bb9a5;
+    outline-offset: 2px;
 }
 
 .data-panel li {
     margin: 8px 0;
 }
 
-.data-feedback.is-error {
+/* Show a hint instead of a blank gap while no items have been added. */
+#selected-items:empty::before {
+    content: "No items added yet.";
+    color: var(--muted);
+}
+
+/* Order list: text on the left, tip box and pay button on the right. */
+.order-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.order-row .order-text {
+    flex: 1 1 320px;
+}
+
+.order-row input {
+    width: 110px;
+}
+
+.data-feedback.is-error,
+.role-feedback.is-error {
     color: #a32121;
 }
 
+/* ---------- Menu ---------- */
 .menu-content {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
 }
 
-.menu-content section,
-.waiter-table-card {
+.menu-content section {
     padding: 16px;
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--surface);
 }
 
-.waiter-table-card.is-occupied {
-    border-color: #e0b3a8;
-}
-
+/* ---------- Role dashboards and kitchen display ---------- */
 .role-stat-grid,
 .kitchen-order-grid {
     display: grid;
@@ -105,8 +149,13 @@
     font: inherit;
 }
 
-.role-feedback.is-error {
-    color: #a32121;
+/* Space between stacked cards, and above the "back" button, on staff pages. */
+.staff-card + .staff-card {
+    margin-top: 20px;
+}
+
+.staff-card + .staff-home-link {
+    margin-top: 20px;
 }
 
 .kitchen-order-card .navi-button {
@@ -115,4 +164,11 @@
 
 .kitchen-empty {
     grid-column: 1 / -1;
+}
+
+@media (max-width: 480px) {
+    .order-row input,
+    .order-row button {
+        flex: 1 1 100%;
+    }
 }

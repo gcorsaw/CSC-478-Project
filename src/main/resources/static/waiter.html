@@ -1,0 +1,76 @@
+<!DOCTYPE html> 
+<html lang ="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="theme-color" content="#173d32">
+        <title>Waiter Station | Green Olives</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body class="waiter-page">
+        <header class="waiter-header">
+            <p class="waiter-brand">Green Olives <span aria-hidden="true">.</span> Waiter Station</p>
+            <div class="waiter-role">
+                <span>Waiter</span>
+                <a class="navi-button staff-home-link" href="restaurant.html">Operations portal</a>
+            </div>
+        </header>
+
+    <main class="waiter-main">
+        <section class="waiter-intro" aria-labelledby="waiter-title">
+            <h1 id="waiter-title">Welcome to the Waiter Station. Ready to tend to your guests?</h1>
+            <p>Check your assigned tables and start serving your guests.</p>
+        </section>
+
+        <section class="waiter-stats" aria-label="Guests">
+            <div class="waiter-stat waiter-panel">
+                <span>Occupied Tables</span>
+                <strong id="open-count" aria-live="polite">0</strong>
+            </div>
+            <div class="waiter-stat">
+                <span>Open Tables</span>
+                <strong id="closed-count" aria-live="polite">0</strong>
+            </div>
+        </section>
+
+        <section class="waiter-panel" aria-labelledby="waiter-heading">
+            <div class="waiter-panel-heading">
+                <div>
+                    <h2 id="waiter-heading">Your Tables</h2>
+                    <p class="waiter-section-copy">Check your assigned tables and start serving your guests.</p>
+                </div>
+            </div>
+            <form class="waiter-form" id="guest-form">
+                <div class="waiter-field">
+                    <label for="guest-name">Guest Name</label>
+                    <input id="guest-name" name="guestName" type="text" autocomplete="name" maxlength="60"
+                     placeholder="Name for the table" required>
+                </div>
+                <div class="waiter-field">
+                    <label for="party-size">Party Size</label>
+                    <input id="party-size" name="partySize" type="number" min="1" max="20" placeholder="Number of guests" required>
+                </div>
+                <button class="waiter-button" type="submit">Add Guest</button>
+            </form>
+            <p class="waiter-feedback" id="waiter-feedback" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="waiter-panel" aria-labelledby="tables-heading">
+            <div class="waiter-panel-heading">
+                <div>
+                <h2 id="tables-heading">Table Status</h2>
+                <p class="waiter-section-copy" id="table-instructions">Check your tables and their current status.</p>
+            </div>
+            <button class="waiter-button waiter-button-secondary" id="show-all-tables" type="button">Show all seated guests</button>
+            </div>
+            <div class="waiter-table-grid" id="table-grid" aria-live="polite">
+            </div>
+        </section>
+
+        <p class="waiter-note">Table status is shared through the restaurant database with other connected stations.</p>
+    </main>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/waiter.js"></script>
+    </body>
+</html>
