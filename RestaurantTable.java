@@ -16,13 +16,10 @@ public class RestaurantTable {
 
     public int getTableId() { return tableId; }
     public void setTableId(int tableId) { this.tableId = tableId; }
-
     public int getCapacity() { return capacity; }
     public void setCapacity(int capacity) { this.capacity = capacity; }
-
     public boolean isOccupied() { return isOccupied; }
     public void setOccupied(boolean occupied) { isOccupied = occupied; }
-
     public String getAssignedWaiterId() { return assignedWaiterId; }
     public void setAssignedWaiterId(String assignedWaiterId) { this.assignedWaiterId = assignedWaiterId; }
 }

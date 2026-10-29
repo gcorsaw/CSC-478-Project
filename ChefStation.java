@@ -3,7 +3,7 @@ package csc478project.restaurantapp;
 public class ChefStation {
     private String chefEmployeeId;
     private String chefName;
-    private String lineAssignment; // "Grill", "Prep", "Dessert"
+    private String lineAssignment; 
     private int ticketCount;
 
     public ChefStation() {}

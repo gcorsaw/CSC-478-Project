@@ -21,7 +21,7 @@ public class TerminalSessionService {
         masterRoster.put("EMP-MGR01", "MANAGER");
         masterRoster.put("EMP-OWNER01", "OWNER");
 
-        for (int i = 1; i <= 12; i++) {
+        for (int i = 1; i <= 8; i++) {
             tableMap.put(i, new RestaurantTable(i, 4));
         }
     }
