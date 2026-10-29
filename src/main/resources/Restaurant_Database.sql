@@ -125,6 +125,40 @@ create table if not exists payment(
     paid_at timestamp not null default now()
 );
 
+DROP TABLE IF EXISTS manager_overrides;
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS staff_roster;
+
+-- Core table storing personnel records across the 5 mandatory capstone roles
+CREATE TABLE staff_roster (
+    employee_id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    passcode VARCHAR(50) NOT NULL,
+    assigned_role VARCHAR(20) NOT NULL -- 'HOST', 'WAITER', 'CHEF', 'MANAGER', 'OWNER'
+);
+
+-- Active management override logging window
+CREATE TABLE manager_overrides (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT NOT NULL,
+    requesting_staff_id VARCHAR(50) NOT NULL,
+    table_id INT NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    status VARCHAR(30) DEFAULT 'PENDING_APPROVAL',
+    resolved_by VARCHAR(50) DEFAULT NULL,
+    FOREIGN KEY (requesting_staff_id) REFERENCES staff_roster(employee_id),
+    FOREIGN KEY (resolved_by) REFERENCES staff_roster(employee_id)
+);
+
+-- Seed production terminal test accounts
+INSERT INTO staff_roster (employee_id, name, passcode, assigned_role) VALUES 
+('EMP-HOST01', 'Alex Smith', '1111', 'HOST'),
+('EMP-WAIT01', 'Sarah Connor', '2222', 'WAITER'),
+('EMP-CHEF01', 'Marcus Wright', '3333', 'CHEF'),
+('EMP-MGR01', 'Boss Lady', '4444', 'MANAGER'),
+('EMP-OWNER01', 'John Doe', '5555', 'OWNER');
+
 -- Sample data for tables--
 insert into worker (first_name, last_name, username, password_hash) values
     ('Jane', 'Doe',    'jdoe',   'hash_placeholder_1'),   -- waiter + manager
