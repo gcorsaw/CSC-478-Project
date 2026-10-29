@@ -1,25 +1,32 @@
+// File: src/main/java/csc478project/restaurantapp/RestaurantTable.java
 package csc478project.restaurantapp;
 
 public class RestaurantTable {
-    private int tableId;
-    private int capacity;
+    private int tableNumber;
+    private int seatingCapacity;
     private boolean isOccupied;
     private String assignedWaiterId;
 
+    // Constructors
     public RestaurantTable() {}
 
-    public RestaurantTable(int tableId, int capacity) {
-        this.tableId = tableId;
-        this.capacity = capacity;
-        this.isOccupied = false;
+    public RestaurantTable(int tableNumber, int seatingCapacity, boolean isOccupied, String assignedWaiterId) {
+        this.tableNumber = tableNumber;
+        this.seatingCapacity = seatingCapacity;
+        this.isOccupied = isOccupied;
+        this.assignedWaiterId = assignedWaiterId;
     }
 
-    public int getTableId() { return tableId; }
-    public void setTableId(int tableId) { this.tableId = tableId; }
-    public int getCapacity() { return capacity; }
-    public void setCapacity(int capacity) { this.capacity = capacity; }
+    // Getters and Setters
+    public int getTableNumber() { return tableNumber; }
+    public void setTableNumber(int tableNumber) { this.tableNumber = tableNumber; }
+
+    public int getSeatingCapacity() { return seatingCapacity; }
+    public void setSeatingCapacity(int seatingCapacity) { this.seatingCapacity = seatingCapacity; }
+
     public boolean isOccupied() { return isOccupied; }
     public void setOccupied(boolean occupied) { isOccupied = occupied; }
+
     public String getAssignedWaiterId() { return assignedWaiterId; }
     public void setAssignedWaiterId(String assignedWaiterId) { this.assignedWaiterId = assignedWaiterId; }
 }

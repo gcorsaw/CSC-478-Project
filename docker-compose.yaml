@@ -1,47 +1,46 @@
+version: '3.8'
+
 services:
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: restaurant_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d restaurant_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer_gui
-    restart: unless-stopped
     ports:
       - "9000:9000"
       - "9443:9443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-
-  postgres_db:
-    image: postgres:16-alpine
-    container_name: postgres_db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
-      POSTGRES_DB: app
-    ports:
-      - "127.0.0.1:5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    restart: always
 
   java_app:
     build: .
     container_name: java_app_container
-    restart: unless-stopped
     ports:
-      - "127.0.0.1:8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/app
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      - "8081:8080" # Changed host port to 8081 to safely avoid conflicts with other apps
     depends_on:
       postgres_db:
         condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/restaurant_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres_password
 
 volumes:
-  portainer_data:
   postgres_data:
+  portainer_data:
