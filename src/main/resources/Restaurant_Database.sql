@@ -19,9 +19,9 @@ CREATE TABLE worker (
     is_active BOOLEAN DEFAULT TRUE NOT NULL
 );
 
--- 2. DINING_TABLE TABLE (Updated from table_number to table_id to match Spring)
+-- 2. DINING_TABLE TABLE (Restored to table_number to align with your Java API)
 CREATE TABLE dining_table (
-    table_id INT PRIMARY KEY,
+    table_number INT PRIMARY KEY,
     capacity INT NOT NULL,
     table_status VARCHAR(50) DEFAULT 'available' NOT NULL -- 'available', 'occupied', 'reserved'
 );
@@ -38,7 +38,7 @@ CREATE TABLE menu_items (
 -- 4. CUSTOMER_ORDER TABLE
 CREATE TABLE customer_order (
     order_id SERIAL PRIMARY KEY,
-    table_id INT NOT NULL REFERENCES dining_table(table_id) ON DELETE RESTRICT,
+    table_number INT NOT NULL REFERENCES dining_table(table_number) ON DELETE RESTRICT,
     waiter_id INT REFERENCES worker(worker_id) ON DELETE SET NULL,
     order_status VARCHAR(50) DEFAULT 'open' NOT NULL, -- 'open', 'preparing', 'served', 'closed', 'cancelled'
     order_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -75,8 +75,8 @@ INSERT INTO worker (name, role, is_active) VALUES
 ('Diana Prince', 'HOST', true),
 ('Evan Wright', 'WAITER', true);
 
--- Seed Restaurant Floor Layout (Tables - Updated column name)
-INSERT INTO dining_table (table_id, capacity, table_status) VALUES 
+-- Seed Restaurant Floor Layout (Tables - Fixed parameter identifier)
+INSERT INTO dining_table (table_number, capacity, table_status) VALUES 
 (1, 2, 'occupied'),
 (2, 4, 'available'),
 (3, 4, 'occupied'),
@@ -95,27 +95,26 @@ INSERT INTO menu_items (item_name, category, price, is_available) VALUES
 ('Iced Lemon Tea', 'Beverage', 2.99, true),
 ('Craft IPA Beer', 'Beverage', 6.50, true);
 
--- Seed Live Open & Preparing Customer Orders (Updated column name and interval format)
-INSERT INTO customer_order (table_id, waiter_id, order_status, order_time) VALUES 
+-- Seed Live Open & Preparing Customer Orders
+INSERT INTO customer_order (table_number, waiter_id, order_status, order_time) VALUES 
 (1, 3, 'preparing', CURRENT_TIMESTAMP - INTERVAL '25 minutes'),
 (3, 5, 'open', CURRENT_TIMESTAMP - INTERVAL '10 minutes');
 
 -- Link Ordered Items to the Active Receipts
 INSERT INTO order_item (order_id, item_id, quantity, special_notes) VALUES 
-(1, 1, 1, 'Extra cheese please'),  -- Table 1 ordered Garlic Bread
-(1, 4, 1, 'Medium rare'),          -- Table 1 ordered Rib Eye Steak
-(1, 8, 2, NULL),                   -- Table 1 ordered two Iced Teas
-(2, 2, 1, NULL),                   -- Table 3 ordered Stuffed Mushrooms
-(2, 5, 2, 'No mushrooms in sauce');-- Table 3 ordered two Alfredo dishes
+(1, 1, 1, 'Extra cheese please'),  
+(1, 4, 1, 'Medium rare'),          
+(1, 8, 2, NULL),                   
+(2, 2, 1, NULL),                   
+(2, 5, 2, 'No mushrooms in sauce');
 
--- Seed Historically Closed Orders & Completed Invoices (Updated column name)
-INSERT INTO customer_order (table_id, waiter_id, order_status, order_time) VALUES 
+-- Seed Historically Closed Orders & Completed Invoices
+INSERT INTO customer_order (table_number, waiter_id, order_status, order_time) VALUES 
 (2, 3, 'closed', CURRENT_TIMESTAMP - INTERVAL '2 hours');
 
 INSERT INTO order_item (order_id, item_id, quantity, special_notes) VALUES 
-(3, 3, 1, NULL),                   -- Salmon Steak
-(3, 9, 1, NULL);                   -- Craft Beer
+(3, 3, 1, NULL),                   
+(3, 9, 1, NULL);                   
 
--- Fixed interval syntax from '1 hour and 30 minutes' to valid Postgres format
 INSERT INTO payment (order_id, amount, tip, payment_method, payment_time) VALUES 
 (3, 31.49, 6.00, 'Credit Card', CURRENT_TIMESTAMP - INTERVAL '1 hour 30 minutes');
