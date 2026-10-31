@@ -32,7 +32,7 @@ services:
     build: .
     container_name: java_app_container
     ports:
-      - "8081:8080" # Changed host port to 8081 to safely avoid conflicts with other apps
+      - "8080:8080" # Changed host port to 8081 to safely avoid conflicts with other apps
     depends_on:
       postgres_db:
         condition: service_healthy
