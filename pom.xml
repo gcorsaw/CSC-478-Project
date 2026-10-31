@@ -45,6 +45,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- H2 Database Engine for Localhost Testing -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+
         <!-- Testing Infrastructure Framework -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
