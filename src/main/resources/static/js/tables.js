@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function () {
     setupAddTableFormEngine();
 });
 
+/**
+ * Synchronizes and displays the complete restaurant floor map table entries
+ */
 function loadActiveTablesGrid() {
     fetch('/api/tables')
         .then(response => {
@@ -15,11 +18,9 @@ function loadActiveTablesGrid() {
             return response.json();
         })
         .then(tables => {
-            // Safe fallback selector matrix to bind data to the UI container
             const tableListContainer = document.getElementById('tables-list') || 
                                        document.getElementById('current-tables-list') || 
-                                       document.querySelector('.Current') || 
-                                       document.body.querySelector('div:last-child');
+                                       document.querySelector('.Current');
             if (!tableListContainer) return;
             tableListContainer.innerHTML = '';
 
@@ -30,19 +31,18 @@ function loadActiveTablesGrid() {
 
             tables.forEach(table => {
                 const recordRow = document.createElement('div');
-                recordRow.className = 'd-flex justify-content-between align-items-center border-bottom p-2 mb-2';
+                recordRow.className = 'd-flex justify-content-between align-items-center border-bottom p-3 mb-2';
                 recordRow.style.backgroundColor = '#fff';
-                recordRow.style.border = '1px solid #ddd';
-                recordRow.style.borderRadius = '4px';
-                recordRow.style.padding = '12px';
+                recordRow.style.border = '1px solid #e0e0e0';
+                recordRow.style.borderRadius = '6px';
                 
                 recordRow.innerHTML = `
                     <div>
-                        <strong>Table ${table.tableNumber}</strong> 
-                        <span class="text-muted small">(Max Capacity: ${table.capacity})</span>
+                        <strong style="font-size: 1.1rem; color: #1b5e20;">Table ${table.tableNumber}</strong> 
+                        <span class="text-muted small" style="margin-left: 10px;">(Max Capacity: ${table.capacity} guests)</span>
                     </div>
                     <div>
-                        <span class="badge ${table.status.toLowerCase() === 'available' ? 'bg-success' : 'bg-warning text-dark'}" style="padding: 6px 12px; border-radius: 4px; text-transform: uppercase; font-size: 0.8rem; font-weight: bold;">
+                        <span class="badge" style="padding: 6px 12px; border-radius: 4px; text-transform: uppercase; font-size: 0.75rem; font-weight: bold; background-color: ${table.status.toLowerCase() === 'available' ? '#e8f5e9; color: #2e7d32;' : '#fff3e0; color: #ef6c00;'}">
                             ${table.status}
                         </span>
                     </div>
@@ -55,6 +55,9 @@ function loadActiveTablesGrid() {
         });
 }
 
+/**
+ * Extracts form field items cleanly and handles secure POST binding payload generation
+ */
 function setupAddTableFormEngine() {
     const tableForm = document.querySelector('form') || document.getElementById('add-table-form');
     if (!tableForm) return;
@@ -62,14 +65,17 @@ function setupAddTableFormEngine() {
     tableForm.addEventListener('submit', function (e) {
         e.preventDefault();
         
-        const numberInput = document.getElementById('tableNumber') || tableForm.querySelector('input[type="number"]');
-        const capacityInput = document.getElementById('capacity') || tableForm.querySelectorAll('input[type="number"]')[1];
+        const numberInput = tableForm.querySelector('input:nth-of-type(1)');
+        const capacityInput = tableForm.querySelector('input:nth-of-type(2)');
 
-        if (!numberInput || !capacityInput) return;
+        if (!numberInput || !capacityInput || !numberInput.value || !capacityInput.value) {
+            alert('Please specify values for both input fields.');
+            return;
+        }
 
         const payload = {
-            tableNumber: parseInt(numberInput.value),
-            capacity: parseInt(capacityInput.value)
+            tableNumber: parseInt(numberInput.value, 10),
+            capacity: parseInt(capacityInput.value, 10)
         };
 
         fetch('/api/tables', {
@@ -78,12 +84,13 @@ function setupAddTableFormEngine() {
             body: JSON.stringify(payload)
         })
         .then(response => {
-            if (!response.ok) throw new Error('Violation of table identification key rules.');
+            if (!response.ok) throw new Error('Server validation failure.');
             tableForm.reset();
-            loadActiveTablesGrid();
+            loadActiveTablesGrid(); // Instantly update view grid without manual reload loops
         })
         .catch(err => {
-            alert('Could not save table configuration. Check for duplicate numbers.');
+            console.error('Add Table validation tracking fault:', err);
+            alert('Could not save table configuration. Ensure the table number is unique.');
         });
     });
 }
