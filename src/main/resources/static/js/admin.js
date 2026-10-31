@@ -1,55 +1,48 @@
-(() => {
-    const healthElement = document.getElementById("admin-health");
-    const feedback = document.getElementById("admin-feedback");
-    const staffList = document.getElementById("staff-list");
+// ============================================================================
+// FULLY CORRECTED ADMIN INTERFACE JAVASCRIPT LAYER (admin.js)
+// Location: src/main/resources/static/js/admin.js
+// ============================================================================
 
-    function addHealthValue(label, value) {
-        const card = document.createElement("article");
-        card.className = "role-stat";
-        const name = document.createElement("span");
-        name.textContent = label;
-        const content = document.createElement("strong");
-        content.textContent = value;
-        card.append(name, content);
-        healthElement.append(card);
+document.addEventListener('DOMContentLoaded', function () {
+    loadSystemHealthStatus();
+    
+    const refreshBtn = document.getElementById('refresh-health');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', loadSystemHealthStatus);
     }
+});
 
-    async function loadHealth() {
-        window.showMessage(feedback, "Checking database connection…");
-        try {
-            const health = await window.restaurantApi("/api/admin/health");
-            healthElement.replaceChildren();
-            addHealthValue("Status", "Connected");
-            addHealthValue("Database", health.database);
-            addHealthValue("Workers", health.workers);
-            addHealthValue("Tables", health.tables);
-            addHealthValue("Orders", health.orders);
-            addHealthValue("Last checked", new Date(health.checkedAt).toLocaleString());
-            window.showMessage(feedback, "The app successfully queried PostgreSQL.");
-        } catch (error) {
-            healthElement.replaceChildren();
-            window.showMessage(feedback, error.message, true);
-        }
-    }
+/**
+ * Synchronizes real-time core platform health tracking metrics from the backend API
+ */
+function loadSystemHealthStatus() {
+    fetch('/api/admin/health')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Server returned internal code: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(health => {
+            // Securely bind variables directly onto UI data container elements
+            const dbElement = document.getElementById('health-db-status') || document.querySelector('[id*="db"]');
+            const checkedElement = document.getElementById('health-checked-at') || document.querySelector('[id*="checked"]');
+            const workersElement = document.getElementById('health-total-workers') || document.querySelector('[id*="workers"]');
+            const tablesElement = document.getElementById('health-total-tables') || document.querySelector('[id*="tables"]');
+            const ordersElement = document.getElementById('health-total-orders') || document.querySelector('[id*="orders"]');
 
-    async function loadStaff() {
-        const workers = await window.restaurantApi("/api/workers");
-        staffList.replaceChildren();
-        if (workers.length === 0) {
-            const empty = document.createElement("li");
-            empty.textContent = "No staff records found.";
-            staffList.append(empty);
-            return;
-        }
-        for (const worker of workers) {
-            const row = document.createElement("li");
-            const roles = worker.roles.length ? worker.roles.join(", ") : "No station assigned";
-            row.textContent = `${worker.firstName} ${worker.lastName} (${worker.username}) — ${worker.active ? "Active" : "Inactive"} — ${roles}`;
-            staffList.append(row);
-        }
-    }
-
-    document.getElementById("refresh-health").addEventListener("click", loadHealth);
-    loadHealth();
-    loadStaff().catch((error) => window.showMessage(feedback, error.message, true));
-})();
+            if (dbElement) dbElement.textContent = health.database ?? 'Connected';
+            if (checkedElement) checkedElement.textContent = health.checkedAt ? new Date(health.checkedAt).toLocaleString() : 'Just now';
+            if (workersElement) workersElement.textContent = health.workers ?? 0;
+            if (tablesElement) tablesElement.textContent = health.tables ?? 0;
+            if (ordersElement) ordersElement.textContent = health.orders ?? 0;
+        })
+        .catch(error => {
+            console.error('Admin tracking synchronization fault:', error);
+            const statusBox = document.getElementById('health-status-error');
+            if (statusBox) {
+                statusBox.textContent = 'Could not synchronize active maintenance data vectors.';
+                statusBox.style.display = 'block';
+            }
+        });
+}

@@ -1,53 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset = "UTF-8">
-        <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
-        <title>Green Olives Kiosk</title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body class="landing-page">
-        <header class="site-header">
-            <div class="site-header-inner">
-                <p class="site-brand">Green Olives</p>
-                <span class="site-tagline">Restaurant operations</span>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Olives Restaurant - Operations Portal</title>
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <h1>Green Olives Restaurant</h1>
+            <p class="subtitle">Unified Operations Portal</p>
+        </div>
+    </header>
+
+    <main class="container portal-grid">
+        <!-- Main Call-to-Action Section -->
+        <section class="portal-card action-section">
+            <h2>Dine-In Management</h2>
+            <p>Initialize customer sessions, open checks, and assign service areas dynamically.</p>
+            <a class="navi-button start-button" href="orders.html">Start Dine-In Order</a>
+        </section>
+
+        <!-- Dynamic Role Workspaces -->
+        <section class="portal-card options-section">
+            <h3>Staff Role Access Workspaces</h3>
+            <div class="button-matrix">
+                <a class="navi-button" href="owner.html">Owner Workspace</a>
+                <a class="navi-button" href="manager.html">Manager Portal</a>
+                <a class="navi-button" href="admin.html">Admin / Maintenance</a>
+                <a class="navi-button" href="kitchen.html">Chef Station</a>
+                <a class="navi-button" href="waiter.html">Waiter Service</a>
+                <a class="navi-button" href="host.html">Host Layout</a>
             </div>
-        </header>
-        <main class="landing-main">
-            <section class="landing-intro" aria-labelledby="page-title">
-                <p class="eyebrow">Operations portal</p>
-                <h1 id="page-title">Restaurant Management</h1>
-                <p>Choose a service to place a guest order or access the tools for your team.</p>
-            </section>
-            <div class="portal-grid">
-                <section class="portal-card customer-card" aria-labelledby="customer-title">
-                    <h2 id="customer-title">Customer ordering</h2>
-                    <p>Start a dine-in order from the customer kiosk.</p>
-                    <a class="navi-button start-button" href="menu.html">Start Dine-In Order</a>
-                </section>
-                <section class="portal-card" aria-labelledby="staff-title">
-                    <h2 id="staff-title">Staff access</h2>
-                    <p>Open the workspace that matches your role.</p>
-                    <nav class="staff-nav" aria-label="Staff interfaces">
-                        <a class="navi-button" href="owner.html">Owner</a>
-                        <a class="navi-button" href="manager.html">Manager</a>
-                        <a class="navi-button" href="admin.html">Admin / Maintenance</a>
-                        <a class="navi-button" href="chef.html">Chef</a>
-                        <a class="navi-button" href="waiter.html">Waiter</a>
-                        <a class="navi-button" href="host.html">Host</a>
-                    </nav>
-                </section>
-                <section class="portal-card" aria-labelledby="data-tools-title">
-                    <h2 id="data-tools-title">Operations data</h2>
-                    <p>View and manage restaurant tables and orders.</p>
-                    <nav class="staff-nav" aria-label="Restaurant data">
-                        <a class="navi-button" href="tables.html">Tables</a>
-                        <a class="navi-button" href="orders.html">Orders</a>
-                        <a class="navi-button" href="menu.html">Menu</a>
-                        <a class="navi-button" href="kitchen.html">Kitchen Display</a>
-                    </nav>
-                </section>
+        </section>
+
+        <!-- System Architecture Shortcuts -->
+        <section class="portal-card paths-section">
+            <h3>Quick Utility Views</h3>
+            <div class="button-matrix continuous-links">
+                <a class="navi-button" href="tables.html">Tables Layout</a>
+                <a class="navi-button" href="orders.html">Active Orders</a>
+                <a class="navi-button" href="menu.html">Culinary Menu</a>
+                <a class="navi-button" href="kitchen.html">Kitchen Display</a>
             </div>
-        </main>
-    </body>
+        </section>
+    </main>
+
+    <footer class="portal-footer">
+        <p>&copy; 2026 Green Olives Core System Management. System Pristine.</p>
+    </footer>
+</body>
 </html>

@@ -1,45 +1,79 @@
-document.addEventListener('DOMContentLoaded', function() {
-    loadWaiterSelectors();
-    setupWaiterAssignmentForm();
+// ============================================================================
+// FULLY REWRITTEN TABLE MANAGEMENT CONTROLLER (tables.js)
+// Location: src/main/resources/static/js/tables.js
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', function () {
+    loadActiveTablesGrid();
+    setupAddTableFormEngine();
 });
 
-function loadWaiterSelectors() {
-    fetch('/api/waiters')
-        .then(response => response.json())
-        .then(waiters => {
-            const selector = document.getElementById('waiter-selection-dropdown');
-            if (!selector) return;
-            selector.innerHTML = '<option value="">-- Choose Waiter --</option>';
-            waiters.forEach(waiter => {
-                const opt = document.createElement('option');
-                opt.value = waiter.waiterId;
-                opt.textContent = `${waiter.firstName} ${waiter.lastName} ${waiter.active ? '(Active)' : '(Offline)'}`;
-                selector.appendChild(opt);
+function loadActiveTablesGrid() {
+    fetch('/api/tables')
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load table dataset.');
+            return response.json();
+        })
+        .then(tables => {
+            const tableListContainer = document.getElementById('current-tables-list') || document.querySelector('.Current');
+            if (!tableListContainer) return;
+            tableListContainer.innerHTML = '';
+
+            if (tables.length === 0) {
+                tableListContainer.innerHTML = '<p class="text-muted p-3">No tables registered.</p>';
+                return;
+            }
+
+            tables.forEach(table => {
+                const recordRow = document.createElement('div');
+                recordRow.className = 'd-flex justify-content-between align-items-center border-bottom p-2';
+                recordRow.style.backgroundColor = '#fff';
+                recordRow.innerHTML = `
+                    <div>
+                        <strong>Table ${table.tableNumber}</strong> 
+                        <span class="text-muted small">(Capacity: ${table.capacity})</span>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary">${table.status.toUpperCase()}</span>
+                    </div>
+                `;
+                tableListContainer.appendChild(recordRow);
             });
+        })
+        .catch(error => {
+            console.error('Table grid refresh process error:', error);
         });
 }
 
-function setupWaiterAssignmentForm() {
-    const form = document.getElementById('waiter-assignment-form');
-    if (!form) return;
-    form.addEventListener('submit', function(e) {
+function setupAddTableFormEngine() {
+    const tableForm = document.querySelector('form');
+    if (!tableForm) return;
+
+    tableForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        
+        const numberInput = tableForm.querySelector('input[type="number"], #table-number');
+        const capacityInput = tableForm.querySelectorAll('input[type="number"]')[1] || document.getElementById('table-capacity');
+
+        if (!numberInput || !capacityInput) return;
+
         const payload = {
-            tableNumber: parseInt(document.getElementById('assign-table-number').value),
-            waiterId: parseInt(document.getElementById('waiter-selection-dropdown').value)
+            tableNumber: parseInt(numberInput.value),
+            capacity: parseInt(capacityInput.value)
         };
 
-        fetch('/api/table-assignments', {
+        fetch('/api/tables', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        }).then(res => {
-            if (res.ok) {
-                alert('Waiter section assignment verified successfully.');
-                form.reset();
-            } else {
-                alert('Error making section assignment. Check ID properties.');
-            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Violation of table identification key rules.');
+            tableForm.reset();
+            loadActiveTablesGrid();
+        })
+        .catch(err => {
+            alert('Could not save table configuration. Check for duplicate numbers.');
         });
     });
 }
