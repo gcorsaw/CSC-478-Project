@@ -1,57 +1,52 @@
-(() => {
-    const ordersElement = document.getElementById("kitchen-orders");
-    const feedback = document.getElementById("kitchen-feedback");
+document.addEventListener('DOMContentLoaded', function() {
+    loadKitchenOrders();
+    setInterval(loadKitchenOrders, 5000); // Polling every 5s
+});
 
-    async function loadKitchenOrders() {
-        const items = await window.restaurantApi("/api/kitchen/orders");
-        ordersElement.replaceChildren();
-        if (items.length === 0) {
-            const empty = document.createElement("p");
-            empty.className = "kitchen-empty";
-            empty.textContent = "No open kitchen items.";
-            ordersElement.append(empty);
-            return;
-        }
+function loadKitchenOrders() {
+    fetch('/api/kitchen/orders')
+        .then(response => response.json())
+        .then(orders => {
+            const container = document.getElementById('kitchen-orders-container');
+            if (!container) return;
+            container.innerHTML = '';
 
-        for (const item of items) {
-            const card = document.createElement("article");
-            card.className = "kitchen-order-card";
-            const heading = document.createElement("h3");
-            heading.textContent = `${item.itemName} × ${item.quantity}`;
-            const detail = document.createElement("p");
-            detail.textContent = `Order #${item.orderId} · Table ${item.tableNumber} · ${item.status.replaceAll("_", " ")}`;
-            card.append(heading, detail);
-            if (item.notes) {
-                const notes = document.createElement("p");
-                notes.textContent = `Notes: ${item.notes}`;
-                card.append(notes);
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No active food orders to prepare.</div>';
+                return;
             }
 
-            const action = document.createElement("button");
-            action.type = "button";
-            action.className = "navi-button";
-            action.textContent = item.status === "standing_by" ? "Start preparing" : "Mark done";
-            action.addEventListener("click", async () => {
-                const nextStatus = item.status === "standing_by" ? "in_progress" : "done";
-                try {
-                    await window.restaurantApi(`/api/kitchen/items/${item.orderItemId}/status`, {
-                        method: "POST",
-                        body: JSON.stringify({ status: nextStatus })
-                    });
-                    window.showMessage(feedback, `${item.itemName} marked ${nextStatus.replaceAll("_", " ")}.`);
-                    await loadKitchenOrders();
-                } catch (error) {
-                    window.showMessage(feedback, error.message, true);
-                }
+            orders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'card mb-3 order-card';
+                card.innerHTML = `
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>Order #${order.orderId} — Table ${order.tableNumber}</h5>
+                        <span class="badge bg-warning text-dark">${order.status}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>Items:</strong></p>
+                        <ul>${order.items ? order.items.split(',').map(item => `<li>${item.trim()}</li>`).join('') : '<li>No details available</li>'}</ul>
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn btn-success btn-sm" onclick="updateKitchenItemStatus(${order.orderId}, 'served')">Mark Ready</button>
+                            <button class="btn btn-secondary btn-sm" onclick="updateKitchenItemStatus(${order.orderId}, 'preparing')">Set Preparing</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
             });
-            card.append(action);
-            ordersElement.append(card);
-        }
-    }
+        })
+        .catch(err => console.error('Chef workflow pipeline sync fault:', err));
+}
 
-    document.getElementById("refresh-kitchen").addEventListener("click", () =>
-        loadKitchenOrders().catch((error) => window.showMessage(feedback, error.message, true)));
-    loadKitchenOrders().catch((error) => window.showMessage(feedback, error.message, true));
-    window.setInterval(() => loadKitchenOrders().catch((error) =>
-        window.showMessage(feedback, error.message, true)), 10000);
-})();
+function updateKitchenItemStatus(orderId, nextStatus) {
+    fetch(`/api/kitchen/items/${orderId}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus })
+    })
+    .then(response => {
+        if (response.ok) loadKitchenOrders();
+        else alert('Failed to change order line production state.');
+    });
+}

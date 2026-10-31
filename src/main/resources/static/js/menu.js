@@ -1,31 +1,32 @@
-(() => {
-    const menuElement = document.getElementById("menu-content");
-    const feedback = document.getElementById("menu-feedback");
-    const labels = {
-        starter: "Starters",
-        main: "Main Courses",
-        dessert: "Desserts",
-        drink: "Beverages"
-    };
+document.addEventListener('DOMContentLoaded', function() {
+    loadPublicRestaurantMenu();
+});
 
-    async function loadMenu() {
-        const items = await window.restaurantApi("/api/menu");
-        menuElement.replaceChildren();
-        for (const [category, title] of Object.entries(labels)) {
-            const categoryItems = items.filter((item) => item.category === category);
-            const section = document.createElement("section");
-            const heading = document.createElement("h2");
-            heading.textContent = title;
-            const list = document.createElement("ul");
-            for (const item of categoryItems) {
-                const row = document.createElement("li");
-                row.textContent = `${item.itemName} — $${Number(item.price).toFixed(2)}`;
-                list.append(row);
-            }
-            section.append(heading, list);
-            menuElement.append(section);
-        }
-    }
+function loadPublicRestaurantMenu() {
+    fetch('/api/menu')
+        .then(res => {
+            if (!res.ok) throw new Error('Menu dataset unavailable.');
+            return res.json();
+        })
+        .then(items => {
+            const menuGrid = document.getElementById('public-menu-grid');
+            if (!menuGrid) return;
+            menuGrid.innerHTML = '';
 
-    loadMenu().catch((error) => window.showMessage(feedback, error.message, true));
-})();
+            items.forEach(item => {
+                const block = document.createElement('div');
+                block.className = 'col-md-4 mb-3';
+                block.innerHTML = `
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <span class="badge bg-primary float-end">${item.category}</span>
+                            <h5 class="card-title">${item.itemName}</h5>
+                            <p class="card-text text-success font-monospace fw-bold">$${parseFloat(item.price).toFixed(2)}</p>
+                        </div>
+                    </div>
+                `;
+                menuGrid.appendChild(block);
+            });
+        })
+        .catch(err => console.error('Menu card generation engine failure:', err));
+}
