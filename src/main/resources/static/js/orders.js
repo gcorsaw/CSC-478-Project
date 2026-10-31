@@ -1,105 +1,175 @@
-(() => {
-    const form = document.getElementById("order-form");
-    const tableSelect = document.getElementById("tableNumber");
-    const itemSelect = document.getElementById("menuItem");
-    const quantityInput = document.getElementById("quantity");
-    const itemsList = document.getElementById("selected-items");
-    const feedback = document.getElementById("order-feedback");
-    const ordersList = document.getElementById("order-list");
-    const selectedItems = new Map();
-    let menu = [];
+// ============================================================================
+// FULLY INTERACTIVE ORDERS CONTROL LOGIC (orders.js)
+// Location: src/main/resources/static/js/orders.js
+// ============================================================================
 
-    function renderSelectedItems() {
-        itemsList.replaceChildren();
-        for (const [itemId, quantity] of selectedItems) {
-            const item = menu.find((entry) => entry.itemId === itemId);
-            if (!item) continue;
-            const row = document.createElement("li");
-            row.textContent = `${item.itemName} × ${quantity}`;
-            itemsList.append(row);
-        }
-    }
+let currentOrderItems = [];
 
-    async function loadData() {
-        const [tables, availableMenu, orders] = await Promise.all([
-            window.restaurantApi("/api/tables"),
-            window.restaurantApi("/api/menu"),
-            window.restaurantApi("/api/orders")
-        ]);
-        menu = availableMenu;
+document.addEventListener('DOMContentLoaded', function() {
+    initializeOrderFormDropdowns();
+    setupOrderActionListeners();
+    loadRecentOrdersFeed();
+});
 
-        tableSelect.replaceChildren();
-        for (const table of tables.filter((entry) => entry.status === "occupied")) {
-            const option = document.createElement("option");
-            option.value = table.tableNumber;
-            option.textContent = `Table ${table.tableNumber} — ${table.guestName}`;
-            tableSelect.append(option);
-        }
-        if (tableSelect.options.length === 0) {
-            const option = document.createElement("option");
-            option.value = "";
-            option.textContent = "Seat a party before creating an order";
-            tableSelect.append(option);
-        }
-
-        itemSelect.replaceChildren();
-        for (const item of menu) {
-            const option = document.createElement("option");
-            option.value = item.itemId;
-            option.textContent = `${item.itemName} — $${Number(item.price).toFixed(2)}`;
-            itemSelect.append(option);
-        }
-
-        ordersList.replaceChildren();
-        for (const order of orders) {
-            const row = document.createElement("li");
-            row.textContent = `Order #${order.orderId} · Table ${order.tableNumber} · ${order.status} · ${order.items}`;
-            ordersList.append(row);
-        }
-    }
-
-    document.getElementById("add-item").addEventListener("click", () => {
-        const itemId = Number(itemSelect.value);
-        const quantity = Number(quantityInput.value);
-        if (!Number.isInteger(itemId) || !Number.isInteger(quantity) || quantity < 1 || quantity > 50) {
-            window.showMessage(feedback, "Select an item and quantity from 1 to 50.", true);
-            return;
-        }
-        const newQuantity = (selectedItems.get(itemId) || 0) + quantity;
-        if (newQuantity > 50) {
-            window.showMessage(feedback, "An item quantity cannot exceed 50.", true);
-            return;
-        }
-        selectedItems.set(itemId, newQuantity);
-        renderSelectedItems();
-        window.showMessage(feedback, "");
-    });
-
-    form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const tableNumber = Number(tableSelect.value);
-        if (!Number.isInteger(tableNumber) || selectedItems.size === 0) {
-            window.showMessage(feedback, "Choose an occupied table and add at least one item.", true);
-            return;
-        }
-        try {
-            const order = await window.restaurantApi("/api/orders", {
-                method: "POST",
-                body: JSON.stringify({
-                    tableNumber,
-                    items: Array.from(selectedItems, ([itemId, quantity]) => ({ itemId, quantity }))
-                })
+/**
+ * Dynamically queries active database records to populate the selector fields
+ */
+function initializeOrderFormDropdowns() {
+    // 1. Populate Active Waiters Dropdown
+    fetch('/api/waiters')
+        .then(res => res.json())
+        .then(waiters => {
+            const waiterSelect = document.querySelector('select[id*="waiter"]') || document.querySelector('select:nth-of-type(1)');
+            if (!waiterSelect) return;
+            waiterSelect.innerHTML = '<option value="">Select an active waiter...</option>';
+            waiters.forEach(w => {
+                if (w.active) {
+                    const opt = document.createElement('option');
+                    opt.value = w.waiterId;
+                    opt.textContent = `${w.firstName} ${w.lastName}`;
+                    waiterSelect.appendChild(opt);
+                }
             });
-            selectedItems.clear();
-            renderSelectedItems();
-            window.showMessage(feedback, `Order #${order.orderId} saved.`);
-            await loadData();
-        } catch (error) {
-            window.showMessage(feedback, error.message, true);
-        }
-    });
+        }).catch(err => console.error('Failed to load form waiters:', err));
 
-    loadData().catch((error) => window.showMessage(feedback, error.message, true));
-    window.setInterval(() => loadData().catch((error) =>
-        window.showMessage(feedback, error.message, true)), 10000);
-})();
+    // 2. Populate Dining Tables Dropdown
+    fetch('/api/tables')
+        .then(res => res.json())
+        .then(tables => {
+            const tableSelect = document.querySelector('select[id*="table"]') || document.querySelector('select:nth-of-type(2)');
+            if (!tableSelect) return;
+            tableSelect.innerHTML = '<option value="">Select a dining table...</option>';
+            tables.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.tableNumber;
+                opt.textContent = `Table ${t.tableNumber} (Capacity: ${t.capacity}) — ${t.status}`;
+                tableSelect.appendChild(opt);
+            });
+        }).catch(err => console.error('Failed to load form tables:', err));
+
+    // 3. Populate Menu Items Dropdown
+    fetch('/api/menu')
+        .then(res => res.json())
+        .then(menuItems => {
+            const itemSelect = document.querySelector('select[id*="menu"]') || document.querySelector('select[id*="item"]') || document.querySelector('select:nth-of-type(3)');
+            if (!itemSelect) return;
+            itemSelect.innerHTML = '<option value="">Choose menu items...</option>';
+            menuItems.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.itemId;
+                opt.textContent = `${item.itemName} ($${parseFloat(item.price).toFixed(2)})`;
+                itemSelect.appendChild(opt);
+            });
+        }).catch(err => console.error('Failed to load form menu selections:', err));
+}
+
+/**
+ * Handles adding dynamic list records to order staging and saving data states
+ */
+function setupOrderActionListeners() {
+    const addItemBtn = document.getElementById('addItemBtn') || document.querySelector('button[id*="Add"]') || document.querySelector('button:nth-of-type(1)');
+    const saveOrderBtn = document.getElementById('saveOrderBtn') || document.querySelector('button[id*="Save"]') || document.querySelector('button:nth-of-type(2)');
+    const orderItemsContainer = document.getElementById('items-in-order') || document.querySelector('.Items') || document.body;
+
+    if (addItemBtn) {
+        addItemBtn.addEventListener('click', function() {
+            const itemSelect = document.querySelector('select[id*="menu"]') || document.querySelector('select[id*="item"]') || document.querySelector('select:nth-of-type(3)');
+            const quantityInput = document.querySelector('input[type="number"]') || document.getElementById('quantity');
+            
+            if (!itemSelect || !itemSelect.value || !quantityInput || parseInt(quantityInput.value) <= 0) {
+                alert('Please select a valid menu item and specify a quantity.');
+                return;
+            }
+
+            const itemId = parseInt(itemSelect.value);
+            const itemName = itemSelect.options[itemSelect.selectedIndex].text;
+            const quantity = parseInt(quantityInput.value);
+
+            // Stage item locally
+            currentOrderItems.push({ itemId: itemId, quantity: quantity });
+
+            // Dynamically build list items to show structured state on HTML page
+            let listWrapper = document.getElementById('staged-items-list');
+            if (!listWrapper) {
+                listWrapper = document.createElement('ul');
+                listWrapper.id = 'staged-items-list';
+                listWrapper.className = 'list-group mb-3';
+                orderItemsContainer.appendChild(listWrapper);
+            }
+
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `<span>${itemName}</span> <span class="badge bg-primary rounded-pill">Qty: ${quantity}</span>`;
+            listWrapper.appendChild(li);
+
+            // Reset selection values safely
+            itemSelect.value = '';
+            quantityInput.value = '1';
+        });
+    }
+
+    if (saveOrderBtn) {
+        saveOrderBtn.addEventListener('click', function() {
+            const tableSelect = document.querySelector('select[id*="table"]') || document.querySelector('select:nth-of-type(2)');
+            if (!tableSelect || !tableSelect.value) {
+                alert('Please pick a destination table number to assign this check.');
+                return;
+            }
+            if (currentOrderItems.length === 0) {
+                alert('Add at least one menu item before saving this order transaction.');
+                return;
+            }
+
+            const payload = {
+                tableNumber: parseInt(tableSelect.value),
+                items: currentOrderItems
+            };
+
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(response => {
+                if (response.ok) {
+                    alert('Order dispatched successfully to kitchen station queues.');
+                    currentOrderItems = [];
+                    const listWrapper = document.getElementById('staged-items-list');
+                    if (listWrapper) listWrapper.innerHTML = '';
+                    tableSelect.value = '';
+                    loadRecentOrdersFeed();
+                } else {
+                    alert('Server rejected structural order mapping body constraints.');
+                }
+            });
+        });
+    }
+}
+
+/**
+ * Loads recent operational tickets directly from /api/orders
+ */
+function loadRecentOrdersFeed() {
+    fetch('/api/orders')
+        .then(res => res.json())
+        .then(orders => {
+            const tableBody = document.querySelector('table tbody') || document.getElementById('recent-orders-list');
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+
+            if (orders.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No recent orders registered.</td></tr>';
+                return;
+            }
+
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>#${order.orderId}</strong></td>
+                    <td>Table ${order.tableNumber}</td>
+                    <td><span class="badge status-${order.status.toLowerCase()}">${order.status.toUpperCase()}</span></td>
+                    <td><small>${order.items ?? 'No detail records'}</small></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }).catch(err => console.error('Fault rendering real-time incoming records stream:', err));
+}
