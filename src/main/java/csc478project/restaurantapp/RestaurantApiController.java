@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.util.*;
 
 @RestController
@@ -32,14 +34,23 @@ public class RestaurantApiController {
      */
     @PostMapping("/tables")
     public ResponseEntity<?> addTable(@RequestBody Map<String, Object> req) {
-        Integer tableNum = (Integer) req.get("tableNumber");
-        Integer cap = (Integer) req.get("capacity");
-        
-        if (tableNum == null || cap == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid form inputs."));
+        Integer tableNum = toInteger(req.get("tableNumber"));
+        Integer capacity = toInteger(req.get("capacity"));
+
+        if (tableNum == null || tableNum < 1) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Table number must be a positive whole number."));
+        }
+        if (capacity == null || capacity < 1 || capacity > 20) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Capacity must be a whole number from 1 to 20."));
+        }
+        if (jdbc.queryForObject(
+            "SELECT count(*) FROM dining_table WHERE table_number = ?", Long.class, tableNum
+        ) > 0) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "That table number is already in use."));
         }
 
-        jdbc.update("INSERT INTO dining_table (table_number, capacity, table_status) VALUES (?, ?, 'available')", tableNum, cap);
+        jdbc.update("INSERT INTO dining_table (table_number, capacity, table_status) VALUES (?, ?, 'available')", tableNum, capacity);
         return ResponseEntity.ok(Map.of("message", "Table configuration saved securely."));
     }
 
@@ -48,13 +59,20 @@ public class RestaurantApiController {
      * Appends items to existing orders or opens new ones, tracking drinks separately.
      */
     @PostMapping("/orders")
+    @Transactional
     public ResponseEntity<?> processOrder(@RequestBody Map<String, Object> req) {
-        Integer tableNum = (Integer) req.get("tableNumber");
-        Integer waiterId = (Integer) req.get("waiterId");
-        List<Map<String, Object>> items = (List<Map<String, Object>>) req.get("items");
+        Integer tableNum = toInteger(req.get("tableNumber"));
+        Integer waiterId = toInteger(req.get("waiterId"));
+        Object rawItems = req.get("items");
 
-        if (tableNum == null || waiterId == null || items == null || items.isEmpty()) {
+        if (tableNum == null || waiterId == null || !(rawItems instanceof List<?> items) || items.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "A table, waiter, and at least one item are required."));
+        }
+        Long existingTables = jdbc.queryForObject(
+            "SELECT count(*) FROM dining_table WHERE table_number = ?", Long.class, tableNum
+        );
+        if (existingTables == null || existingTables == 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Select an existing table."));
         }
         Long activeWaiters = jdbc.queryForObject(
             "SELECT count(*) FROM worker WHERE worker_id = ? AND role = 'WAITER' AND is_active = true",
@@ -62,6 +80,26 @@ public class RestaurantApiController {
         );
         if (activeWaiters == null || activeWaiters == 0) {
             return ResponseEntity.badRequest().body(Map.of("error", "Select an active waiter."));
+        }
+
+        List<Map<String, Integer>> validatedItems = new ArrayList<>();
+        for (Object rawItem : items) {
+            if (!(rawItem instanceof Map<?, ?> item)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Each order item must include a menu item and quantity."));
+            }
+            Integer itemId = toInteger(item.get("itemId"));
+            Integer quantity = toInteger(item.get("quantity"));
+            if (itemId == null || itemId < 1 || quantity == null || quantity < 1) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Menu item IDs and quantities must be positive whole numbers."));
+            }
+            Long availableItems = jdbc.queryForObject(
+                "SELECT count(*) FROM menu_items WHERE item_id = ? AND is_available = true",
+                Long.class, itemId
+            );
+            if (availableItems == null || availableItems == 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Select an available menu item."));
+            }
+            validatedItems.add(Map.of("itemId", itemId, "quantity", quantity));
         }
 
         // Check if an open order already exists for this table (Allows Incremental Ordering Spec)
@@ -84,10 +122,11 @@ public class RestaurantApiController {
         }
 
         // Insert items individually into the order list
-        for (Map<String, Object> item : items) {
-            Integer itemId = (Integer) item.get("itemId");
-            Integer qty = (Integer) item.get("quantity");
-            jdbc.update("INSERT INTO order_item (order_id, item_id, quantity) VALUES (?, ?, ?)", orderId, itemId, qty);
+        for (Map<String, Integer> item : validatedItems) {
+            jdbc.update(
+                "INSERT INTO order_item (order_id, item_id, quantity) VALUES (?, ?, ?)",
+                orderId, item.get("itemId"), item.get("quantity")
+            );
         }
 
         return ResponseEntity.ok(Map.of("orderId", orderId, "message", "Items batched successfully."));
@@ -172,5 +211,16 @@ public class RestaurantApiController {
     @GetMapping("/menu")
     public List<Map<String, Object>> getMenu() {
         return jdbc.queryForList("SELECT item_id AS \"itemId\", item_name AS \"itemName\", category, price FROM menu_items WHERE is_available = true");
+    }
+
+    private static Integer toInteger(Object value) {
+        if (!(value instanceof Number number)) {
+            return null;
+        }
+        try {
+            return new BigDecimal(number.toString()).intValueExact();
+        } catch (NumberFormatException | ArithmeticException exception) {
+            return null;
+        }
     }
 }

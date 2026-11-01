@@ -34,10 +34,16 @@ docker compose up --build -d
 ```
 
 Open the web app at <http://localhost:8080/>. PostgreSQL is exposed for database
-clients on `localhost:5433`; it is not an HTTP website. The default local demo
-credentials are database `app`, user `postgres`, and password `change-me`.
-Set `POSTGRES_PASSWORD` in your environment before starting Compose to use a
-different password. Do not use the demo password outside local development.
+clients on `localhost:5433`; it is not an HTTP website. The local demo
+credentials are database `restaurant_db`, user `postgres`, and password
+`postgres_password`. Do not use the demo password outside local development.
+
+On the first start with a new PostgreSQL data volume, Compose initializes the
+schema and demo data from `src/main/resources/Restaurant_Database.sql`. The
+application waits for all required tables to exist before starting. If an
+existing database volume was created before this initialization was configured,
+only run the SQL script manually after confirming that the database has no
+application tables: the script drops and recreates the restaurant tables.
 
 To start only PostgreSQL:
 
@@ -90,7 +96,7 @@ NOTICE: database "restaurant_schema_test" does not exist, skipping
 Connect to PostgreSQL from a terminal:
 
 ```bash
-docker exec -it postgres_db psql -U postgres -d app
+docker exec -it postgres_db psql -U postgres -d restaurant_db
 ```
 
 Inside `psql`, list tables:
@@ -226,9 +232,18 @@ git status
 
 ## Run the web app without Docker
 
-Keep PostgreSQL running, then run:
+Keep PostgreSQL running and do not run the Docker app on port 8080 at the same
+time. To keep the Docker app available, start Maven on a different port:
 
 ```bash
+mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081
+```
+
+Open <http://localhost:8081/>. Alternatively, stop only the Docker app
+container, keep PostgreSQL running, and use the default Maven port:
+
+```bash
+docker compose stop java_app
 mvn spring-boot:run
 ```
 
