@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Seating Overview | Green Olives</title>
+    <meta name="theme-color" content="#173d32">
+    <title>Host Workspace | Green Olives</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="app.css">
 </head>
-<body>
-    <div class="container">
-        <header style="margin-bottom: 20px;">
-            <a href="restaurant.html" class="btn btn-secondary">Operations portal</a>
-            <h1>Host Assignment Desk</h1>
-        </header>
-
-        <main class="grid-layout" id="floorPlanGrid">
-            <!-- Table grids will inject dynamically here -->
-        </main>
-    </div>
-
-    <!-- Corrected Path Binding Link -->
-    <script src="js/host.js"></script>
+<body class="staff-page">
+    <header class="staff-header">
+        <a class="staff-brand" href="restaurant.html">Green Olives</a>
+        <span>Host workspace</span>
+    </header>
+    <main class="staff-main">
+        <p class="eyebrow">Front of house</p>
+        <h1>Host workspace</h1>
+        <section class="staff-card">
+            <h2>Table overview</h2>
+            <p>Current table availability from the restaurant floor.</p>
+            <div id="host-summary" class="role-stat-grid" aria-live="polite"></div>
+            <div id="host-tables" class="host-table-grid" aria-live="polite"></div>
+            <p id="host-feedback" class="role-feedback" role="status" aria-live="polite"></p>
+        </section>
+        <a class="navi-button staff-home-link" href="restaurant.html">Back to operations portal</a>
+    </main>
+    <script src="/js/app.js"></script>
+    <script src="/js/host.js"></script>
 </body>
 </html>

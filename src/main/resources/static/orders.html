@@ -3,77 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders Management | Green Olives</title>
+    <meta name="theme-color" content="#173d32">
+    <title>Orders | Green Olives</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="app.css">
 </head>
-<body>
-    <div class="container">
-        <header style="margin-bottom: 20px;">
-            <a href="restaurant.html" class="btn btn-secondary">Operations portal</a>
-            <h1>Orders</h1>
-        </header>
+<body class="data-page">
+    <header class="staff-header">
+        <a class="staff-brand" href="restaurant.html">Green Olives</a>
+        <span>Order management</span>
+    </header>
+    <main class="data-main">
+        <p class="eyebrow">Operations</p>
+        <h1>Orders</h1>
+        <section class="data-panel">
+            <h2>Create an order</h2>
+            <form id="orderForm" class="data-form">
+                <label for="waiterSelect">Waiter</label>
+                <select id="waiterSelect" required>
+                    <option value="" disabled selected>Select an active waiter...</option>
+                </select>
 
-        <main class="card" style="margin-bottom: 30px;">
-            <h2>Create Order</h2>
-            <form id="orderForm">
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="waiterSelect">Waiter</label>
-                    <select id="waiterSelect" class="form-control" required>
-                        <option value="" disabled selected>Select an active waiter...</option>
-                    </select>
-                </div>
+                <label for="tableSelect">Table</label>
+                <select id="tableSelect" required>
+                    <option value="" disabled selected>Select a dining table...</option>
+                </select>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="tableSelect">Occupied table</label>
-                    <select id="tableSelect" class="form-control" required>
-                        <option value="" disabled selected>Select a dining table...</option>
-                    </select>
-                </div>
+                <label for="itemSelect">Menu item</label>
+                <select id="itemSelect" required>
+                    <option value="" disabled selected>Choose a menu item...</option>
+                </select>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="itemSelect">Menu item</label>
-                    <select id="itemSelect" class="form-control" required>
-                        <option value="" disabled selected>Choose menu items...</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="quantityInput">Quantity</label>
-                    <input type="number" id="quantityInput" class="form-control" value="1" min="1" required>
-                </div>
-
-                <button type="button" id="addItemBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 20px;">Add item</button>
+                <label for="quantityInput">Quantity</label>
+                <input type="number" id="quantityInput" value="1" min="1" required>
+                <button type="button" id="addItemBtn">Add item</button>
             </form>
 
-            <section style="margin-bottom: 20px;">
-                <h3>Items in this order</h3>
-                <ul id="currentOrderItems" class="list-group"></ul>
-            </section>
+            <h3>Items in this order</h3>
+            <ul id="currentOrderItems" class="staged-items"></ul>
+            <button type="button" id="saveOrderBtn">Save order</button>
+            <p id="errorMessage" class="data-feedback" role="status" aria-live="polite"></p>
+        </section>
 
-            <button type="button" id="saveOrderBtn" class="btn btn-primary" style="width: 100%;">Save Order</button>
-            <div id="errorMessage" class="error-msg" style="color: red; margin-top: 15px; display: none;">Internal Server Error</div>
-        </main>
-
-        <footer class="card">
-            <h2>Recent Orders</h2>
+        <section class="data-panel">
+            <h2>Recent orders</h2>
             <div class="table-responsive">
-                <table class="table">
+                <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Table</th>
-                            <th>Status</th>
-                            <th>Items</th>
+                            <th scope="col">Order</th>
+                            <th scope="col">Table</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Created</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody"></tbody>
                 </table>
             </div>
-        </footer>
-    </div>
-
-    <!-- Corrected Path Binding Link -->
-    <script src="js/orders.js"></script>
+        </section>
+        <a class="navi-button staff-home-link" href="restaurant.html">Back to operations portal</a>
+    </main>
+    <script src="/js/app.js"></script>
+    <script src="/js/orders.js"></script>
 </body>
 </html>

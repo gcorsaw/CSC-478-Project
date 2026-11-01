@@ -50,7 +50,19 @@ public class RestaurantApiController {
     @PostMapping("/orders")
     public ResponseEntity<?> processOrder(@RequestBody Map<String, Object> req) {
         Integer tableNum = (Integer) req.get("tableNumber");
+        Integer waiterId = (Integer) req.get("waiterId");
         List<Map<String, Object>> items = (List<Map<String, Object>>) req.get("items");
+
+        if (tableNum == null || waiterId == null || items == null || items.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "A table, waiter, and at least one item are required."));
+        }
+        Long activeWaiters = jdbc.queryForObject(
+            "SELECT count(*) FROM worker WHERE worker_id = ? AND role = 'WAITER' AND is_active = true",
+            Long.class, waiterId
+        );
+        if (activeWaiters == null || activeWaiters == 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Select an active waiter."));
+        }
 
         // Check if an open order already exists for this table (Allows Incremental Ordering Spec)
         List<Integer> existingOrders = jdbc.queryForList(
@@ -61,11 +73,12 @@ public class RestaurantApiController {
         int orderId;
         if (!existingOrders.isEmpty()) {
             orderId = existingOrders.get(0);
+            jdbc.update("UPDATE customer_order SET waiter_id = ? WHERE order_id = ?", waiterId, orderId);
         } else {
             // Open a pristine new check sequence
             orderId = jdbc.queryForObject(
-                "INSERT INTO customer_order (table_number, order_status) VALUES (?, 'open') RETURNING order_id",
-                Integer.class, tableNum
+                "INSERT INTO customer_order (table_number, waiter_id, order_status) VALUES (?, ?, 'open') RETURNING order_id",
+                Integer.class, tableNum, waiterId
             );
             jdbc.update("UPDATE dining_table SET table_status = 'occupied' WHERE table_number = ?", tableNum);
         }

@@ -1,60 +1,59 @@
-document.addEventListener('DOMContentLoaded', function() {
-    loadFloorMapLayout();
-    setupHostFormListeners();
+document.addEventListener("DOMContentLoaded", () => {
+    const feedback = document.getElementById("host-feedback");
+    const refresh = () => loadHostTables(feedback);
+    refresh();
+    window.setInterval(refresh, 10000);
 });
 
-function loadFloorMapLayout() {
-    fetch('/api/tables')
-        .then(response => response.json())
-        .then(tables => {
-            const grid = document.getElementById('host-floor-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
+async function loadHostTables(feedback) {
+    const grid = document.getElementById("host-tables");
+    const summary = document.getElementById("host-summary");
+    if (!grid || !summary || !feedback) return;
 
-            tables.forEach(table => {
-                const element = document.createElement('div');
-                element.className = `table-box status-${table.status.toLowerCase()} p-3 border text-center`;
-                element.innerHTML = `
-                    <h4>Table ${table.tableNumber}</h4>
-                    <p class="small text-muted">Capacity: ${table.capacity}</p>
-                    <p><strong>${table.status.toUpperCase()}</strong></p>
-                    ${table.guestName ? `<p class="small text-truncate">Guest: ${table.guestName} (${table.partySize})</p>` : ''}
-                    ${table.status.toLowerCase() === 'occupied' ? 
-                        `<button class="btn btn-danger btn-xs mt-2" onclick="clearTableSeating(${table.tableNumber})">Vacate</button>` : ''}
-                `;
-                grid.appendChild(element);
+    try {
+        const tables = await window.restaurantApi("/api/tables");
+        const occupiedCount = tables.filter((table) =>
+            table.status.toLowerCase() === "occupied"
+        ).length;
+        summary.replaceChildren();
+        renderHostStat(summary, "Open tables", tables.length - occupiedCount);
+        renderHostStat(summary, "Occupied tables", occupiedCount);
+        grid.replaceChildren();
+
+        if (tables.length === 0) {
+            const empty = document.createElement("p");
+            empty.className = "kitchen-empty";
+            empty.textContent = "No tables have been added yet.";
+            grid.append(empty);
+        } else {
+            tables.forEach((table) => {
+                const card = document.createElement("article");
+                const occupied = table.status.toLowerCase() === "occupied";
+                card.className = `host-table-card${occupied ? " is-occupied" : ""}`;
+                const name = document.createElement("h3");
+                name.textContent = `Table ${table.tableNumber}`;
+                const capacity = document.createElement("p");
+                capacity.textContent = `Seats ${table.capacity}`;
+                const status = document.createElement("span");
+                status.className = "status-badge";
+                status.textContent = table.status;
+                card.append(name, capacity, status);
+                grid.append(card);
             });
-        })
-        .catch(err => console.error('Floor structure layout fetch exception:', err));
+        }
+        feedback.textContent = "";
+    } catch (error) {
+        window.showMessage(feedback, error.message, true);
+    }
 }
 
-function setupHostFormListeners() {
-    const form = document.getElementById('seating-form');
-    if (!form) return;
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const payload = {
-            guestName: document.getElementById('guest-name').value,
-            partySize: parseInt(document.getElementById('party-size').value),
-            tableNumber: parseInt(document.getElementById('target-table').value)
-        };
-
-        fetch('/api/seatings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).then(res => {
-            if (res.ok) {
-                form.reset();
-                loadFloorMapLayout();
-            } else {
-                alert('Table seating constraint breach or table already occupied.');
-            }
-        });
-    });
-}
-
-function clearTableSeating(tableNumber) {
-    fetch(`/api/tables/${tableNumber}/seating`, { method: 'DELETE' })
-        .then(res => { if (res.ok) loadFloorMapLayout(); });
+function renderHostStat(container, label, value) {
+    const stat = document.createElement("div");
+    stat.className = "role-stat";
+    const title = document.createElement("span");
+    title.textContent = label;
+    const count = document.createElement("strong");
+    count.textContent = value;
+    stat.append(title, count);
+    container.append(stat);
 }

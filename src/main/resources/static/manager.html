@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#173d32">
     <title>Manager Workspace | Green Olives</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
 </head>
 <body class="staff-page">
     <header class="staff-header">
@@ -19,18 +20,6 @@
             <h2>Floor and order overview</h2>
             <div class="role-stat-grid" id="manager-summary" aria-live="polite"></div>
             <p class="role-feedback" id="manager-feedback" role="status" aria-live="polite"></p>
-        </section>
-        <section class="staff-card">
-            <h2>Assign a waiter to a table</h2>
-            <form id="assignment-form" class="role-form">
-                <label for="assignment-table">Table</label>
-                <select id="assignment-table" required></select>
-                <label for="assignment-waiter">Waiter</label>
-                <select id="assignment-waiter" required></select>
-                <button class="navi-button" type="submit">Save assignment</button>
-            </form>
-            <p id="assignment-feedback" class="role-feedback" role="status" aria-live="polite"></p>
-            <ul id="assignment-list"></ul>
         </section>
         <section class="staff-card">
             <h2>Recent orders</h2>

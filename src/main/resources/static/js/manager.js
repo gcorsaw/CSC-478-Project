@@ -1,37 +1,57 @@
-document.addEventListener('DOMContentLoaded', function() {
-    loadSystemHealthStatus();
-    loadActiveStaffDirectory();
-});
+document.addEventListener("DOMContentLoaded", loadManagerWorkspace);
 
-function loadSystemHealthStatus() {
-    fetch('/api/admin/health')
-        .then(res => res.json())
-        .then(health => {
-            const dbStatus = document.getElementById('health-db-status');
-            const totalStaff = document.getElementById('health-total-staff');
-            if (dbStatus) dbStatus.textContent = health.database;
-            if (totalStaff) totalStaff.textContent = health.workers;
-        });
+async function loadManagerWorkspace() {
+    const summaryElement = document.getElementById("manager-summary");
+    const ordersElement = document.getElementById("manager-orders");
+    const feedback = document.getElementById("manager-feedback");
+
+    try {
+        const [summary, orders] = await Promise.all([
+            window.restaurantApi("/api/summary"),
+            window.restaurantApi("/api/orders")
+        ]);
+        renderManagerStats(summaryElement, summary);
+        renderManagerOrders(ordersElement, orders.slice(0, 5));
+        feedback.textContent = "";
+    } catch (error) {
+        window.showMessage(feedback, error.message, true);
+    }
 }
 
-function loadActiveStaffDirectory() {
-    fetch('/api/workers')
-        .then(res => res.json())
-        .then(workers => {
-            const tableBody = document.getElementById('staff-directory-body');
-            if (!tableBody) return;
-            tableBody.innerHTML = '';
+function renderManagerStats(container, summary) {
+    if (!container) return;
+    container.replaceChildren();
 
-            workers.forEach(worker => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>#${worker.workerId}</strong></td>
-                    <td>${worker.firstName} ${worker.lastName}</td>
-                    <td><code>${worker.username}</code></td>
-                    <td><span class="badge bg-secondary">${worker.roles ? worker.roles.join(', ') : 'STAFF'}</span></td>
-                    <td><span class="badge ${worker.active ? 'bg-success' : 'bg-danger'}">${worker.active ? 'Active' : 'Inactive'}</span></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        });
+    [
+        ["Active staff", summary.activeWorkers],
+        ["Occupied tables", `${summary.occupiedTables} / ${summary.totalTables}`],
+        ["Open orders", summary.openOrders]
+    ].forEach(([label, value]) => {
+        const card = document.createElement("div");
+        card.className = "role-stat";
+        const title = document.createElement("span");
+        title.textContent = label;
+        const metric = document.createElement("strong");
+        metric.textContent = value;
+        card.append(title, metric);
+        container.append(card);
+    });
+}
+
+function renderManagerOrders(container, orders) {
+    if (!container) return;
+    container.replaceChildren();
+
+    if (orders.length === 0) {
+        const empty = document.createElement("li");
+        empty.textContent = "No recent orders.";
+        container.append(empty);
+        return;
+    }
+
+    orders.forEach((order) => {
+        const item = document.createElement("li");
+        item.textContent = `Order #${order.orderId} · Table ${order.tableNumber} · ${order.status}`;
+        container.append(item);
+    });
 }

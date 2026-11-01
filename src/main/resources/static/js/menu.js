@@ -1,32 +1,39 @@
-document.addEventListener('DOMContentLoaded', function() {
-    loadPublicRestaurantMenu();
-});
+document.addEventListener("DOMContentLoaded", loadMenu);
 
-function loadPublicRestaurantMenu() {
-    fetch('/api/menu')
-        .then(res => {
-            if (!res.ok) throw new Error('Menu dataset unavailable.');
-            return res.json();
-        })
-        .then(items => {
-            const menuGrid = document.getElementById('public-menu-grid');
-            if (!menuGrid) return;
-            menuGrid.innerHTML = '';
+async function loadMenu() {
+    const menuContent = document.getElementById("menu-content");
+    const feedback = document.getElementById("menu-feedback");
+    if (!menuContent || !feedback) return;
 
-            items.forEach(item => {
-                const block = document.createElement('div');
-                block.className = 'col-md-4 mb-3';
-                block.innerHTML = `
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <span class="badge bg-primary float-end">${item.category}</span>
-                            <h5 class="card-title">${item.itemName}</h5>
-                            <p class="card-text text-success font-monospace fw-bold">$${parseFloat(item.price).toFixed(2)}</p>
-                        </div>
-                    </div>
-                `;
-                menuGrid.appendChild(block);
+    try {
+        const items = await window.restaurantApi("/api/menu");
+        menuContent.replaceChildren();
+
+        if (items.length === 0) {
+            feedback.textContent = "No menu items are currently available.";
+            return;
+        }
+
+        feedback.textContent = "";
+        items.forEach((item) => {
+            const card = document.createElement("article");
+            card.className = "menu-card";
+
+            const name = document.createElement("h2");
+            name.textContent = item.itemName;
+            const category = document.createElement("p");
+            category.textContent = item.category;
+            const price = document.createElement("p");
+            price.className = "menu-price";
+            price.textContent = Number(item.price).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD"
             });
-        })
-        .catch(err => console.error('Menu card generation engine failure:', err));
+
+            card.append(name, category, price);
+            menuContent.append(card);
+        });
+    } catch (error) {
+        window.showMessage(feedback, error.message, true);
+    }
 }
