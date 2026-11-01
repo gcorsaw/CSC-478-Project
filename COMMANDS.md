@@ -38,6 +38,21 @@ clients on `localhost:5433`; it is not an HTTP website. The local demo
 credentials are database `restaurant_db`, user `postgres`, and password
 `postgres_password`. Do not use the demo password outside local development.
 
+The manager override is disabled unless `RESTAURANT_MANAGER_OVERRIDE_PASSWORD`
+is set in the environment before Compose starts. Enter it without echoing it to
+the terminal, then start the services:
+
+```bash
+read -rsp "Manager override secret: " RESTAURANT_MANAGER_OVERRIDE_PASSWORD
+printf '\n'
+export RESTAURANT_MANAGER_OVERRIDE_PASSWORD
+docker compose up --build -d
+unset RESTAURANT_MANAGER_OVERRIDE_PASSWORD
+```
+
+This is a shared override secret for the local demo, not individual worker
+passwords or complete role-based access control.
+
 On the first start with a new PostgreSQL data volume, Compose initializes the
 schema and demo data from `src/main/resources/Restaurant_Database.sql`. The
 application waits for all required tables to exist before starting. If an
