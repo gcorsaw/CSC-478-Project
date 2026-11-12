@@ -1,16 +1,26 @@
 document.addEventListener("DOMContentLoaded", () => {
     const feedback = document.getElementById("kitchen-feedback");
     const refreshButton = document.getElementById("refresh-kitchen");
-    const refresh = () => loadKitchenOrders(feedback);
+    const refresh = (showProgress = false) => loadKitchenOrders(feedback, refreshButton, showProgress);
 
-    refreshButton?.addEventListener("click", refresh);
+    refreshButton?.addEventListener("click", () => refresh(true));
     refresh();
-    window.setInterval(refresh, 10000);
+    window.setInterval(() => refresh(), 10000);
 });
 
-async function loadKitchenOrders(feedback) {
+let kitchenRefreshInProgress = false;
+
+async function loadKitchenOrders(feedback, refreshButton, showProgress) {
     const container = document.getElementById("kitchen-orders");
-    if (!container || !feedback) return;
+    if (!container || !feedback || kitchenRefreshInProgress) return;
+
+    kitchenRefreshInProgress = true;
+    const buttonText = refreshButton?.textContent;
+    if (showProgress && refreshButton) {
+        refreshButton.disabled = true;
+        refreshButton.textContent = "Refreshing...";
+        window.showMessage(feedback, "Refreshing orders...");
+    }
 
     try {
         const orders = await window.restaurantApi("/api/orders");
@@ -36,8 +46,16 @@ async function loadKitchenOrders(feedback) {
                 container.append(card);
             });
         }
-        feedback.textContent = "";
+        if (showProgress) {
+            window.showMessage(feedback, `Orders refreshed at ${new Date().toLocaleTimeString()}.`);
+        }
     } catch (error) {
         window.showMessage(feedback, error.message, true);
+    } finally {
+        kitchenRefreshInProgress = false;
+        if (showProgress && refreshButton) {
+            refreshButton.disabled = false;
+            refreshButton.textContent = buttonText;
+        }
     }
 }

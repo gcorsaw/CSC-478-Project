@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173d32">
+    <title>Staff sign up | Green Olives</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="staff-page login-page">
+    <header class="staff-header">
+        <a class="staff-brand" href="restaurant.html">Green Olives</a>
+        <span>Staff sign up</span>
+    </header>
+    <main class="staff-main login-main">
+        <p class="eyebrow">Green Olives operations</p>
+        <h1>Create a staff account</h1>
+        <form id="signup-form" class="login-form">
+            <label for="signup-name">Employee name</label>
+            <input id="signup-name" name="name" maxlength="100" autocomplete="name" required autofocus>
+            <label for="signup-username">Username</label>
+            <input id="signup-username" name="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9._-]+" autocomplete="username" required>
+            <label for="signup-password">Password</label>
+            <input id="signup-password" name="password" type="password" minlength="12" autocomplete="new-password" required>
+            <label for="signup-role">Role</label>
+            <select id="signup-role" name="role" required>
+                <option value="CHEF">Chef</option>
+                <option value="WAITER">Waiter</option>
+                <option value="HOST">Host</option>
+            </select>
+            <button type="submit">Create account</button>
+            <p id="signup-feedback" class="role-feedback" role="status" aria-live="polite"></p>
+        </form>
+        <a class="navi-button login-home-link" href="login.html">Back to sign in</a>
+    </main>
+    <script src="/js/signup.js"></script>
+</body>
+</html>

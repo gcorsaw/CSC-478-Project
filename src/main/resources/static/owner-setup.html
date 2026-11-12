@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173d32">
+    <title>Initial Owner setup | Green Olives</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="staff-page login-page">
+    <header class="staff-header">
+        <a class="staff-brand" href="restaurant.html">Green Olives</a>
+        <span>Initial Owner setup</span>
+    </header>
+    <main class="staff-main login-main">
+        <p class="eyebrow">First-time setup</p>
+        <h1>Create the first Owner account</h1>
+        <form id="owner-setup-form" class="login-form" hidden>
+            <label for="owner-name">Owner name</label>
+            <input id="owner-name" name="name" maxlength="100" autocomplete="name" required autofocus>
+            <label for="owner-username">Username</label>
+            <input id="owner-username" name="username" value="owner" minlength="3" maxlength="32" pattern="[A-Za-z0-9._-]+" autocomplete="username" required>
+            <label for="owner-password">Password</label>
+            <input id="owner-password" name="password" type="password" minlength="12" autocomplete="new-password" required>
+            <button type="submit">Create Owner account</button>
+            <p id="owner-setup-feedback" class="role-feedback" role="status" aria-live="polite"></p>
+        </form>
+        <p id="owner-setup-unavailable" class="role-feedback" role="status" aria-live="polite"></p>
+        <a class="navi-button login-home-link" href="login.html?role=owner">Back to Owner sign in</a>
+    </main>
+    <script src="/js/owner-setup.js"></script>
+</body>
+</html>

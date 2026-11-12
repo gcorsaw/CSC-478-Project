@@ -47,4 +47,18 @@ for run in 1 2; do
         < src/main/resources/Restaurant_Database.sql
 done
 
+echo "Testing account-table migration for an existing database"
+docker exec "${container_name}" psql \
+    --username="${database_user}" \
+    --dbname="${test_database}" \
+    --set=ON_ERROR_STOP=1 \
+    --command="DROP TABLE staff_account"
+for run in 1 2; do
+    docker exec -i "${container_name}" psql \
+        --username="${database_user}" \
+        --dbname="${test_database}" \
+        --set=ON_ERROR_STOP=1 \
+        < src/main/resources/schema.sql
+done
+
 echo "Database script passed twice. Temporary database removed."

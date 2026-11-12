@@ -1,5 +1,56 @@
 document.addEventListener("DOMContentLoaded", loadManagerWorkspace);
 
+restrictAccountRoleOptions();
+
+async function restrictAccountRoleOptions() {
+    const roleSelect = document.getElementById("staff-role");
+    if (!roleSelect) return;
+
+    try {
+        const session = await window.restaurantApi("/api/auth/session");
+        if (session.role === "OWNER") return;
+    } catch {}
+
+    [...roleSelect.options]
+        .filter((option) => ["MANAGER", "ADMIN", "OWNER"].includes(option.value))
+        .forEach((option) => option.remove());
+}
+
+document.getElementById("manager-override-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const feedback = document.getElementById("manager-override-feedback");
+    const credentials = Object.fromEntries(new FormData(form));
+
+    try {
+        await window.restaurantApi("/api/manager/override", {
+            method: "POST",
+            body: JSON.stringify(credentials)
+        });
+        form.reset();
+        window.showMessage(feedback, "Manager credentials verified.");
+    } catch (error) {
+        window.showMessage(feedback, error.message, true);
+    }
+});
+
+document.getElementById("staff-account-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const feedback = document.getElementById("staff-account-feedback");
+
+    try {
+        const account = await window.restaurantApi("/api/staff/accounts", {
+            method: "POST",
+            body: JSON.stringify(Object.fromEntries(new FormData(form)))
+        });
+        form.reset();
+        window.showMessage(feedback, `Account created for ${account.name} (${account.username}).`);
+    } catch (error) {
+        window.showMessage(feedback, error.message, true);
+    }
+});
+
 async function loadManagerWorkspace() {
     const summaryElement = document.getElementById("manager-summary");
     const ordersElement = document.getElementById("manager-orders");

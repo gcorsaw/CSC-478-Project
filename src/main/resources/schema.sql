@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS staff_account (
+    worker_id INT PRIMARY KEY REFERENCES worker(worker_id) ON DELETE CASCADE,
+    username VARCHAR(32) NOT NULL UNIQUE,
+    password_hash VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);

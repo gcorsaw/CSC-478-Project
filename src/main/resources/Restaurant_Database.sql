@@ -6,6 +6,7 @@
 DROP TABLE IF EXISTS payment CASCADE;
 DROP TABLE IF EXISTS order_item CASCADE;
 DROP TABLE IF EXISTS customer_order CASCADE;
+DROP TABLE IF EXISTS staff_account CASCADE;
 DROP TABLE IF EXISTS menu_items CASCADE;
 DROP TABLE IF EXISTS dining_table CASCADE;
 DROP TABLE IF EXISTS worker CASCADE;
@@ -16,6 +17,13 @@ CREATE TABLE worker (
     name VARCHAR(100) NOT NULL,
     role VARCHAR(50) NOT NULL, -- 'MANAGER', 'CHEF', 'WAITER', 'HOST'
     is_active BOOLEAN DEFAULT TRUE NOT NULL
+);
+
+CREATE TABLE staff_account (
+    worker_id INT PRIMARY KEY REFERENCES worker(worker_id) ON DELETE CASCADE,
+    username VARCHAR(32) NOT NULL UNIQUE,
+    password_hash VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- 2. DINING_TABLE TABLE (Perfect alignment with backend TableView fields)

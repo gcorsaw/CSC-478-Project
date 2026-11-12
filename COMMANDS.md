@@ -50,15 +50,64 @@ docker compose up --build -d
 unset RESTAURANT_MANAGER_OVERRIDE_PASSWORD
 ```
 
-This is a shared override secret for the local demo, not individual worker
-passwords or complete role-based access control.
+Staff workspaces require an account configured with a role-specific password.
+The default usernames are `manager`, `owner`, `admin`, `chef`, `waiter`, and
+`host`; set the corresponding `RESTAURANT_AUTH_<ROLE>_PASSWORD` environment
+variable before starting Compose. For example:
+
+```bash
+read -rsp "Manager account password: " RESTAURANT_AUTH_MANAGER_PASSWORD
+printf '\n'
+export RESTAURANT_AUTH_MANAGER_PASSWORD
+docker compose up --build -d
+unset RESTAURANT_AUTH_MANAGER_PASSWORD
+```
+
+Override a username with `RESTAURANT_AUTH_<ROLE>_USERNAME`. Bootstrap account
+passwords are BCrypt-hashed in memory when the app starts. A role with no
+password configured has no enabled bootstrap login. Manager override
+authorization remains a separate shared secret; its username must match the
+name of an active manager in the `worker` table.
+
+To enable the separate Owner login, use the default username `owner` and set an
+Owner password before starting the app:
+
+```bash
+read -rsp "Owner account password: " RESTAURANT_AUTH_OWNER_PASSWORD
+printf '\n'
+export RESTAURANT_AUTH_OWNER_PASSWORD
+docker compose up --build -d java_app
+unset RESTAURANT_AUTH_OWNER_PASSWORD
+```
+
+Sign in at `/login.html` with username `owner` and the password you entered.
+The Owner login is separate from staff self-signup and is not stored in the
+employee-account table.
+
+If no Owner login is configured, the sign-in page offers one-time first-Owner
+setup. Open the Owner sign-in page, choose **Set up first Owner account**, and
+enter the owner name, username, and password. The first-Owner form has no setup
+code; anyone who can reach the app before the first Owner is created can claim
+Owner access. Do not expose the app to an untrusted network until the first
+Owner account is created. Setup becomes unavailable after that first account.
+
+Managers and owners can create staff accounts from the manager workspace.
+New employee records and their BCrypt-hashed passwords are saved in the
+database. Managers can create chef, waiter, and host accounts; only owners can
+create manager, admin, or owner accounts. New passwords must be at least 12
+characters long.
+
+Staff can sign themselves up as a chef, waiter, or host without an invitation
+code. Anyone who can reach the site can create one of these accounts, so do not
+expose the app to an untrusted network. Self-signup cannot create manager,
+admin, or owner accounts.
 
 On the first start with a new PostgreSQL data volume, Compose initializes the
-schema and demo data from `src/main/resources/Restaurant_Database.sql`. The
-application waits for all required tables to exist before starting. If an
-existing database volume was created before this initialization was configured,
-only run the SQL script manually after confirming that the database has no
-application tables: the script drops and recreates the restaurant tables.
+schema and demo data from `src/main/resources/Restaurant_Database.sql`. On
+startup, the application also applies `src/main/resources/schema.sql`, which
+adds the staff-account table to existing database volumes. Do not run
+`Restaurant_Database.sql` against a populated database: it drops and recreates
+the restaurant tables.
 
 To start only PostgreSQL:
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173d32">
+    <title>Staff sign in | Green Olives</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="staff-page login-page">
+    <header class="staff-header">
+        <a class="staff-brand" href="restaurant.html">Green Olives</a>
+        <span>Staff sign in</span>
+    </header>
+    <main class="staff-main login-main">
+        <p class="eyebrow">Green Olives operations</p>
+        <h1>Sign in</h1>
+        <form id="login-form" class="login-form">
+            <label for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" required autofocus>
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+            <button type="submit">Sign in</button>
+            <p id="login-feedback" class="role-feedback" role="status" aria-live="polite"></p>
+        </form>
+        <a id="owner-setup-link" class="navi-button login-home-link" href="owner-setup.html" hidden>Set up first Owner account</a>
+        <a class="navi-button login-home-link" href="signup.html">Staff sign up</a>
+        <a class="navi-button login-home-link" href="restaurant.html">Back to portal</a>
+    </main>
+    <script src="/js/login.js"></script>
+</body>
+</html>
