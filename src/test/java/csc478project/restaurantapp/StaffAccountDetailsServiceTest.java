@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +36,7 @@ class StaffAccountDetailsServiceTest {
         when(jdbc.query(eq(LOOKUP_SQL), anyRowMapper(), eq("new-chef")))
             .thenReturn(List.of(storedAccount));
         StaffAccountDetailsService service = new StaffAccountDetailsService(jdbc, username -> {
-            throw new AssertionError("Database account should be used before bootstrap accounts.");
+            throw new UsernameNotFoundException(username);
         });
 
         UserDetails loaded = service.loadUserByUsername(" New-Chef ");
@@ -45,13 +46,27 @@ class StaffAccountDetailsServiceTest {
     }
 
     @Test
+    void configuredBootstrapAccountTakesPrecedenceOverDatabaseAccount() {
+        UserDetails bootstrapAccount = User.withUsername("owner")
+            .password("{noop}configured-owner-password")
+            .roles("OWNER")
+            .build();
+        var bootstrap = new InMemoryUserDetailsManager(bootstrapAccount);
+        StaffAccountDetailsService service = new StaffAccountDetailsService(jdbc, bootstrap);
+
+        UserDetails loaded = service.loadUserByUsername(" Owner ");
+
+        assertEquals("ROLE_OWNER", loaded.getAuthorities().iterator().next().getAuthority());
+        assertEquals("{noop}configured-owner-password", loaded.getPassword());
+    }
+
+    @Test
     void fallsBackToConfiguredBootstrapAccounts() {
         UserDetails bootstrapAccount = User.withUsername("manager")
             .password("{noop}test-password")
             .roles("MANAGER")
             .build();
         var bootstrap = new InMemoryUserDetailsManager(bootstrapAccount);
-        when(jdbc.query(eq(LOOKUP_SQL), anyRowMapper(), eq("manager"))).thenReturn(List.of());
         StaffAccountDetailsService service = new StaffAccountDetailsService(jdbc, bootstrap);
 
         assertEquals("ROLE_MANAGER", service.loadUserByUsername("manager")

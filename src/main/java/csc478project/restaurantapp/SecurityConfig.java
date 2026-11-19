@@ -54,7 +54,7 @@ public class SecurityConfig {
             if (account.getUsername() == null || account.getUsername().isBlank()) {
                 throw new IllegalStateException("Username is required for role: " + configuredRole);
             }
-            users.add(User.withUsername(account.getUsername())
+            users.add(User.withUsername(account.getUsername().trim().toLowerCase(Locale.ROOT))
                 .password(passwordEncoder.encode(account.getPassword()))
                 .roles(role)
                 .build());

@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class StaffAccountDetailsService implements UserDetailsService {
     private final JdbcTemplate jdbc;
@@ -19,6 +20,12 @@ public class StaffAccountDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         String normalizedUsername = username.trim().toLowerCase(Locale.ROOT);
+        try {
+            return bootstrapAccounts.loadUserByUsername(normalizedUsername);
+        } catch (UsernameNotFoundException ignored) {
+            // Fall through to persistent employee accounts.
+        }
+
         List<UserDetails> accounts = jdbc.query(
             "SELECT a.username, a.password_hash, w.role "
                 + "FROM staff_account a JOIN worker w ON w.worker_id = a.worker_id "
