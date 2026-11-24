@@ -11,6 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Validates restaurant business rules and performs database operations.
+ */
 @Service
 public class RestaurantService {
     public record OrderItemInput(Integer itemId, Integer quantity) {}
@@ -59,6 +62,8 @@ public class RestaurantService {
         Integer waiterId,
         List<OrderItemInput> items
     ) {
+        // Validate every reference before opening or extending an order so bad
+        // input cannot leave a partial order or a newly occupied table.
         if (tableNumber == null || waiterId == null || items == null || items.isEmpty()) {
             throw new ApiException(
                 HttpStatus.BAD_REQUEST,

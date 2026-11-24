@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres_db:
     image: postgres:16-alpine
@@ -33,7 +31,7 @@ services:
     build: .
     container_name: java_app_container
     ports:
-      - "8080:8080" # Changed host port to 8081 to safely avoid conflicts with other apps
+      - "8080:8080"
     depends_on:
       postgres_db:
         condition: service_healthy

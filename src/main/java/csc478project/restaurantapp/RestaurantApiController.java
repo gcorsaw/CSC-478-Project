@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * HTTP boundary for restaurant operations. Input conversion is kept here;
+ * validation and database rules remain in RestaurantService.
+ */
 @RestController
 @RequestMapping("/api")
 public class RestaurantApiController {
